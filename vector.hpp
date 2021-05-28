@@ -34,9 +34,49 @@ namespace ft {
 
 
         //      MEMBER FUNCTIONS
-        vector() { len = 0; siz = 0; }
-        vector(size_type n) { array = alloc.allocate(n); len = 0; siz = n; }
-        ~vector() { alloc.deallocate(array, siz); }
+        explicit vector(const allocator_type& alloc = allocator_type()) { len = 0; siz = 0; }
+        explicit vector(size_type n, const value_type& val = value_type(),
+                const allocator_type& alloc = allocator_type()) { this->alloc = alloc; array = this->alloc.allocate(n); len = 0; siz = n; }
+        template <class InputIterator>
+            vector (InputIterator first, InputIterator last,
+                    const allocator_type& alloc = allocator_type()) {
+                len = &(*last) - &(*first); 
+                siz = len;
+                this->alloc = alloc;
+                array = this->alloc.allocate(siz);
+                for (int i = 0; i < len; i++) {
+                    //array[i] = *first++;
+                    this->alloc.construct(array + i, *first++);
+                }
+            }
+        vector (const vector& x) {
+            len = x.len;
+            siz = x.siz;
+            alloc = x.alloc;
+            array = alloc.allocate(siz);
+            for (int i = 0; i < len; i ++) {
+           //     array[i] = x[i];
+                this->alloc.construct(array + i, x[i]);
+            }
+        }
+        ~vector() { 
+            for (int i = 0; i < len; i++)
+                alloc.destroy(array + i);
+            alloc.deallocate(array, siz);
+        }
+        vector& operator=(const vector& x) {
+            value_type * tmp = this->array;
+            len = x.len;
+            if (x.siz > siz) {
+                siz = x.siz;
+                array = alloc.allocate(siz);
+            }
+            for (int i = 0; i < len; i++)
+                this->alloc.construct(array + i, x[i]);
+            for (iterator it = begin(); it < end(); ++it)
+                this->alloc.destroy(*it);
+            this->alloc.deallocate(tmp);
+        }
 
 
         //      ITERATORS
@@ -48,6 +88,7 @@ namespace ft {
 
         public:
 
+            iterator() {}
             iterator(pointer ptr) : ptr(ptr) {}
 
             reference operator*() const { return *ptr; }
@@ -65,6 +106,11 @@ namespace ft {
             friend bool operator==(const iterator& a, const iterator& b) { return a.ptr == b.ptr; }
             friend bool operator!=(const iterator& a, const iterator& b) { return a.ptr != b.ptr; }
 
+            friend iterator operator+(const iterator& a, const int& b) { return &*a + b; }
+            friend iterator operator+(const int& a, const iterator& b) { return a + &*b; }
+            friend iterator operator-(const iterator& a, const int& b) { return &*a - b; }
+            friend iterator operator-(const int& a, const iterator& b) { return a - &*b; }
+
         };
 
         struct const_iterator {
@@ -75,6 +121,7 @@ namespace ft {
 
         public:
 
+            const_iterator() {}
             const_iterator(pointer ptr) : ptr(ptr) {}
 
             const_reference operator*() const { return *ptr; }
@@ -92,6 +139,11 @@ namespace ft {
             friend bool operator==(const const_iterator& a, const const_iterator& b) { return a.ptr == b.ptr; }
             friend bool operator!=(const const_iterator& a, const const_iterator& b) { return a.ptr != b.ptr; }
 
+            friend const_iterator operator+(const const_iterator& a, const int& b) { return &*a + b; }
+            friend const_iterator operator+(const int& a, const const_iterator& b) { return a + &*b; }
+            friend const_iterator operator-(const const_iterator& a, const int& b) { return &*a - b; }
+            friend const_iterator operator-(const int& a, const const_iterator& b) { return a - &*b; }
+
         };
 
         struct reverse_iterator {
@@ -102,6 +154,7 @@ namespace ft {
 
         public:
 
+            reverse_iterator() {}
             reverse_iterator(pointer ptr) : ptr(ptr) {}
 
             reference operator*() const { return *ptr; }
@@ -119,6 +172,11 @@ namespace ft {
             friend bool operator==(const reverse_iterator& a, const reverse_iterator& b) { return a.ptr == b.ptr; }
             friend bool operator!=(const reverse_iterator& a, const reverse_iterator& b) { return a.ptr != b.ptr; }
 
+            friend reverse_iterator operator+(const reverse_iterator& a, const int& b) { return &*a + b; }
+            friend reverse_iterator operator+(const int& a, const reverse_iterator& b) { return a + &*b; }
+            friend reverse_iterator operator-(const reverse_iterator& a, const int& b) { return &*a - b; }
+            friend reverse_iterator operator-(const int& a, const reverse_iterator& b) { return a - &*b; }
+
         };
 
         struct const_reverse_iterator {
@@ -129,8 +187,9 @@ namespace ft {
 
         public:
 
+            const_reverse_iterator() {}
             const_reverse_iterator(pointer ptr) : ptr(ptr) {}
-            const_reverse_iterator(reverse_iterator rit) { ptr = rit->ptr; }
+            const_reverse_iterator(reverse_iterator rit) { ptr = &(*rit); }
 
             const_reference operator*() const { return *ptr; }
             const_pointer operator->() const { return ptr; }
@@ -146,6 +205,11 @@ namespace ft {
 
             friend bool operator==(const const_reverse_iterator& a, const const_reverse_iterator& b) { return a.ptr == b.ptr; }
             friend bool operator!=(const const_reverse_iterator& a, const const_reverse_iterator& b) { return a.ptr != b.ptr; }
+
+            friend const_reverse_iterator operator+(const const_reverse_iterator& a, const int& b) { return &*a + b; }
+            friend const_reverse_iterator operator+(const int& a, const const_reverse_iterator& b) { return a + &*b; }
+            friend const_reverse_iterator operator-(const const_reverse_iterator& a, const int& b) { return &*a - b; }
+            friend const_reverse_iterator operator-(const int& a, const const_reverse_iterator& b) { return a - &*b; }
 
         };
 
@@ -166,44 +230,96 @@ namespace ft {
         //      CAPACITY
         size_type   size() const { return len; }
         size_type   max_size() const { return alloc.max_size(); }
-        void        resize (size_type n, value_type val = value_type());
-        bool        empty() const { return !len; }
+        void        resize (size_type n, value_type val = value_type()) {
+            if (n < len) {
+                for (int i = n; i < len; i++)
+                    alloc.destroy(array + i);
+                len = n;
+            }
+            else if (n < siz) {
+                for (int i = len; i < n; i++)
+                    alloc.construct(array + i, val);
+                len = n;
+            }
+            else {
+                value_type * tmp = array;
+                array = alloc.allocate(n);
+                for (int i = 0; i < len; i++)
+                    array[i] = tmp[i];
+                alloc.deallocate(tmp, siz);
+                for (int i = len; i < n; i++)
+                    alloc.construct(array + i, val);
+                len = n;
+                siz = n;
+            }
+
+        }
         size_type   capacity() const { return siz; }
-        void        reserve(size_type n);
+        bool        empty() const { return !len; }
+        void        reserve(size_type n) {
+            if (n > siz) {
+                value_type * tmp = array;
+                array = alloc.allocate(n);
+                for (int i = 0; i < len; i++) {
+                    array[i] = tmp[i];
+                    alloc.destroy(tmp + i);
+                }
+                alloc.deallocate(tmp, siz);
+                siz = n;
+            }
+        }
         
 
 
         //      ELEMENT ACCESS
-        value_type & operator[](size_t idx) { return this->array[idx]; }
+        reference operator[](size_type n) { return array[n]; }
+        const_reference operator[](size_type n) const { return array[n]; }
+        reference at (size_type n) { if (n < 0 || n >= len) throw std::out_of_range("vector"); return array[n]; }
+        const_reference at (size_type n) const { if (n < 0 || n >= len) throw std::out_of_range("vector"); return array[n]; }
+        reference front() { return array[0]; }
+        const_reference front() const { return array[0]; }
+        reference back() { return array[len-1]; }
+        const_reference back() const { return array[len-1]; }
 
 
 
         //      MODIFIERS
-        void    push_back(const value_type& val);
-        void    pop_back();
-        void    clear();
+        void        push_back(const value_type& val);
+        void        pop_back();
+        template    <class InputIterator>
+            void    assign (InputIterator first, InputIterator last);
+        void        assign (size_type n, const value_type& val);
+        iterator    insert (iterator position, const value_type& val);
+        void        insert (iterator position, size_type n, const value_type& val);
+        template <class InputIterator>
+            void    insert (iterator position, InputIterator first, InputIterator last);
+        iterator    erase (iterator position);
+        iterator    erase (iterator first, iterator last);
+        void        swap (vector& x);
+        void        clear();
 
-
-    };
 
     //      NON MEMBER-FUNCTIONS OVERLOADS
 
+    };
 }
 
 template <class T, class Alloc>
 void    ft::vector<T, Alloc>::push_back(const T & val) {
-    if (this->len < this->siz)
-        array[this->len++] = val;
+    if (this->len < this->siz) {
+    //    this->array[this->len++] = val;
+        this->alloc.construct(this->array + this->len++, val);
+    }
     else {
         value_type * tmp = this->array;
         this->array = this->alloc.allocate(this->siz ? this->siz * 2 : 1);
-        for (int i = 0; i < this->siz; i++)
+        for (int i = 0; i < this->len; i++)
             this->array[i] = tmp[i];
         this->alloc.deallocate(tmp, this->siz);
-        this->array[this->siz] = val;
-        //this->alloc.construct(this->array + this->siz, val);
+        //this->array[this->siz] = val;
+        this->alloc.construct(this->array + this->len++, val);
         this->siz = this->siz ? this->siz * 2 : 1;
-        this->len++;
+        //this->len++;
     }
     //std::cout << "size of vector is " << this->siz << std::endl;
 }
@@ -223,6 +339,47 @@ void    ft::vector<T, Alloc>::clear() {
     //}
 }
 
+template <class T, class Alloc>
+    template <class InputIterator>
+    void    ft::vector<T, Alloc>::assign (InputIterator first, InputIterator last) {
 
+        int n = &(*last) - &(*first); 
+        if (n <= siz) {
+            for (int i = 0; i < n; i++)
+                alloc.construct(array + i, *first++);
+            len = n;
+        }
+        else {
+            value_type * tmp = array;
+            array = alloc.allocate(n);
+            for (int i = 0; i < n; i++)
+                alloc.construct(array + i, *first++);
+            for (int i = 0; i < len; i++)
+                alloc.destroy(tmp + i);
+            alloc.deallocate(tmp, siz);
+            len = n;
+            siz = n;
+        }
+    }
+
+template <class T, class Alloc>
+void    ft::vector<T, Alloc>::assign (size_type n, const value_type& val) {
+    if (n <= siz) {
+        for (int i = 0; i < n; i++)
+            alloc.construct(array + i, val);
+        len = n;
+    }
+    else {
+        value_type * tmp = array;
+        array = alloc.allocate(n);
+        for (int i = 0; i < n; i++)
+            alloc.construct(array + i, val); 
+        for (int i = 0; i < len; i++)
+            alloc.destroy(tmp + i);
+        alloc.deallocate(tmp, siz);
+        len = n;
+        siz = n;
+    }
+}
 
 #endif 
