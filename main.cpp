@@ -3,7 +3,7 @@
 #include <vector>
 #include "vector.hpp"
 
-using namespace ft;
+using namespace std;
 
 int main() {
     //    int     tab[]={1, 2, 3};
@@ -28,30 +28,27 @@ int main() {
     */
 
 
+    vector<int> myvector (3u,100);
+    vector<int>::iterator it;
 
+    it = myvector.begin();
+    it = myvector.insert ( it , 200 );
 
-  vector<int> first;
-  vector<int> second;
-  vector<int> third;
+    myvector.insert (it,2,300);
 
-  first.assign (7u,100);             // 7 ints with a value of 100
+    // "it" no longer valid, get a new one:
+    it = myvector.begin();
 
-  vector<int>::iterator it;
-  it=first.begin()+1;
+/*    vector<int> anothervector (2,400);
+    myvector.insert (it+2,anothervector.begin(),anothervector.end());
 
-  second.assign (it,first.end()-1); // the 5 central values of first
-
-  for (int i = 0; i < second.size(); i++)
-    std::cout << second[i] << " ";
-  std::cout << std::endl;
-
-  int myints[] = {1776,7,4};
-  third.assign (myints,myints+3);   // assigning from array.
-
-  std::cout << "Size of first: " << int (first.size()) << '\n';
-  std::cout << "Size of second: " << int (second.size()) << '\n';
-  std::cout << "Size of third: " << int (third.size()) << '\n';
-
+    int myarray [] = { 501,502,503 };
+    myvector.insert (myvector.begin(), myarray, myarray+3);
+*/
+    std::cout << "myvector contains:";
+    for (it=myvector.begin(); it < myvector.end(); it++)
+        std::cout << ' ' << *it;
+    std::cout << '\n';
 
 
 

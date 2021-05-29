@@ -3,6 +3,7 @@
 
 # include <memory>
 # include <cmath>
+# include <iostream>
 
 namespace ft {
 
@@ -36,7 +37,14 @@ namespace ft {
         //      MEMBER FUNCTIONS
         explicit vector(const allocator_type& alloc = allocator_type()) { len = 0; siz = 0; }
         explicit vector(size_type n, const value_type& val = value_type(),
-                const allocator_type& alloc = allocator_type()) { this->alloc = alloc; array = this->alloc.allocate(n); len = 0; siz = n; }
+                const allocator_type& alloc = allocator_type()) { 
+            this->alloc = alloc;
+            array = this->alloc.allocate(n);
+            for (int i = 0; i < n; i++)
+                this->alloc.construct(array + i, val);
+            len = n;
+            siz = n;
+        }
         template <class InputIterator>
             vector (InputIterator first, InputIterator last,
                     const allocator_type& alloc = allocator_type()) {
@@ -111,6 +119,11 @@ namespace ft {
             friend iterator operator-(const iterator& a, const int& b) { return &*a - b; }
             friend iterator operator-(const int& a, const iterator& b) { return a - &*b; }
 
+            friend bool operator<(const iterator&a, const iterator&b ) { return &*a < &*b; }
+            friend bool operator>(const iterator&a, const iterator&b ) { return &*a > &*b; }
+            friend bool operator<=(const iterator&a, const iterator&b ) { return &*a <= &*b; }
+            friend bool operator>=(const iterator&a, const iterator&b ) { return &*a >= &*b; }
+
         };
 
         struct const_iterator {
@@ -143,6 +156,8 @@ namespace ft {
             friend const_iterator operator+(const int& a, const const_iterator& b) { return a + &*b; }
             friend const_iterator operator-(const const_iterator& a, const int& b) { return &*a - b; }
             friend const_iterator operator-(const int& a, const const_iterator& b) { return a - &*b; }
+
+            
 
         };
 
@@ -300,6 +315,10 @@ namespace ft {
 
 
     //      NON MEMBER-FUNCTIONS OVERLOADS
+    //
+    //
+    //
+    //
 
     };
 }
@@ -381,5 +400,45 @@ void    ft::vector<T, Alloc>::assign (size_type n, const value_type& val) {
         siz = n;
     }
 }
+
+
+template <class T, class Alloc> 
+typename ft::vector<T, Alloc>::iterator   ft::vector<T, Alloc>::insert(iterator position, const value_type& val) {
+
+    int i;
+    if (len < siz) {
+        for (i = len - 1; i && &array[i] != &*position; i--)
+            array[i + 1] = array[i];
+        alloc.construct(array + i, val);
+        len += 1;
+    }
+    else {
+        value_type * tmp = array;
+        array = alloc.allocate(siz + 1);
+        for (int i = 0; i < len; i++) {
+            array[i] = tmp[i];
+            alloc.destroy(tmp + i);
+        }
+        alloc.deallocate(tmp, siz);
+        for (i = len - 1; i && &array[i] != &*position; i--)
+            array[i + 1] = array[i];
+        alloc.construct(array + i, val);
+        
+        len += 1;
+        siz += 1;
+    }
+    return iterator(&array[i]);
+}
+
+
+template <class T, class Alloc>
+void        ft::vector<T, Alloc>::insert(iterator position, size_type n, const value_type& val) {
+
+
+}
+
+ //       template <class InputIterator>
+  //          void    insert (iterator position, InputIterator first, InputIterator last);
+
 
 #endif 
