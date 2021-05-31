@@ -3,7 +3,7 @@
 #include <vector>
 #include "vector.hpp"
 
-using namespace std;
+using namespace ft;
 
 int main() {
     //    int     tab[]={1, 2, 3};
@@ -28,27 +28,20 @@ int main() {
     */
 
 
-    vector<int> myvector (3u,100);
-    vector<int>::iterator it;
 
-    it = myvector.begin();
-    it = myvector.insert ( it , 200 );
 
-    myvector.insert (it,2,300);
+  vector<int> foo (3u,100);   // three ints with a value of 100
+  vector<int> bar (2u,200);   // two ints with a value of 200
 
-    // "it" no longer valid, get a new one:
-    it = myvector.begin();
+  if (foo==bar) std::cout << "foo and bar are equal\n";
+  if (foo!=bar) std::cout << "foo and bar are not equal\n";
+  if (foo< bar) std::cout << "foo is less than bar\n";
+  if (foo> bar) std::cout << "foo is greater than bar\n";
+  if (foo<=bar) std::cout << "foo is less than or equal to bar\n";
+  if (foo>=bar) std::cout << "foo is greater than or equal to bar\n";
 
-/*    vector<int> anothervector (2,400);
-    myvector.insert (it+2,anothervector.begin(),anothervector.end());
 
-    int myarray [] = { 501,502,503 };
-    myvector.insert (myvector.begin(), myarray, myarray+3);
-*/
-    std::cout << "myvector contains:";
-    for (it=myvector.begin(); it < myvector.end(); it++)
-        std::cout << ' ' << *it;
-    std::cout << '\n';
+
 
 
 

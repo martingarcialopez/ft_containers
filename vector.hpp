@@ -73,17 +73,16 @@ namespace ft {
             alloc.deallocate(array, siz);
         }
         vector& operator=(const vector& x) {
-            value_type * tmp = this->array;
-            len = x.len;
-            if (x.siz > siz) {
-                siz = x.siz;
-                array = alloc.allocate(siz);
-            }
+            value_type * tmp = array;
+            array = alloc.allocate(x.siz);
+            for (int i = 0; i < x.len; i++)
+                alloc.construct(array + i, x[i]);
             for (int i = 0; i < len; i++)
-                this->alloc.construct(array + i, x[i]);
-            for (iterator it = begin(); it < end(); ++it)
-                this->alloc.destroy(*it);
-            this->alloc.deallocate(tmp);
+                alloc.destroy(tmp + i);
+            alloc.deallocate(tmp, siz);
+            len = x.len;
+            siz = x.siz;
+            return *this;
         }
 
 
@@ -350,12 +349,11 @@ void    ft::vector<T, Alloc>::pop_back() {
 
 template <class T, class Alloc>
 void    ft::vector<T, Alloc>::clear() {
-    this->alloc.deallocate(this->array, this->siz);
-    this->len = 0;
-    this->siz = 0;
-    //for (int i = 0; i < this->len; i++) {
-        //this->alloc.destroy();
-    //}
+    for (int i = 0; i < len; i++)
+        alloc.destroy(array[i]);
+    alloc.deallocate(array, siz);
+    len = 0;
+    siz = 0;
 }
 
 template <class T, class Alloc>
@@ -405,40 +403,137 @@ void    ft::vector<T, Alloc>::assign (size_type n, const value_type& val) {
 template <class T, class Alloc> 
 typename ft::vector<T, Alloc>::iterator   ft::vector<T, Alloc>::insert(iterator position, const value_type& val) {
 
-    int i;
-    if (len < siz) {
-        for (i = len - 1; i && &array[i] != &*position; i--)
-            array[i + 1] = array[i];
-        alloc.construct(array + i, val);
-        len += 1;
-    }
-    else {
-        value_type * tmp = array;
-        array = alloc.allocate(siz + 1);
-        for (int i = 0; i < len; i++) {
-            array[i] = tmp[i];
-            alloc.destroy(tmp + i);
-        }
-        alloc.deallocate(tmp, siz);
-        for (i = len - 1; i && &array[i] != &*position; i--)
-            array[i + 1] = array[i];
-        alloc.construct(array + i, val);
-        
-        len += 1;
-        siz += 1;
-    }
-    return iterator(&array[i]);
+    insert(position, 1u, val);
+    return position;
+
 }
 
 
 template <class T, class Alloc>
 void        ft::vector<T, Alloc>::insert(iterator position, size_type n, const value_type& val) {
 
+    int i;
+    if (len + n <= siz) {
+        for (i = len - 1; i >= 0 && &array[i] >= &*position; i--)
+            array[i + n] = array[i];
+        i++;
+        for (int j = 0; j < n; j++)
+            alloc.construct(array + i + j, val);
+        len += n;
+    }
+    else {
+        value_type * tmp = array;
+        array = alloc.allocate(siz + n - (siz - len));
+        for (int i = 0; i < len; i++)
+            array[i] = tmp[i];
+        for (i = len - 1; i >= 0 && &tmp[i] >= &*position; i--)
+            array[i + n] = array[i];
+        i++;
+        for (int j = 0; j < n; j++)
+            alloc.construct(array + i + j , val);
+        for (int i = 0; i < len; i++)
+            alloc.destroy(tmp + i);
+        alloc.deallocate(tmp, siz);
+        siz += n - (siz - len);
+        len += n;
+    }
+}
+
+template <class T, class Alloc>
+template <class InputIterator>
+void    ft::vector<T, Alloc>::insert(iterator position, InputIterator first, InputIterator last) {
+        
+    int n = &*last - &*first;
+    int pos = &*position - &array[0];
+    for (int i = 0; i < n; i++) {
+        insert(position, 1u, *--last);
+        position = iterator(&array[pos]); 
+    }
+}
+
+template <class T, class Alloc>
+typename ft::vector<T, Alloc>::iterator     ft::vector<T, Alloc>::erase(iterator position) {
+
+    int i = 0;
+    while (i < len && &array[i] != &*position)
+        i++;
+    iterator it = iterator(&array[i]);
+    for (; i + 1 < len; i++)
+        array[i] = array[i + 1];
+    len--;
+    return it;
+}
+
+template <class T, class Alloc>
+typename ft::vector<T, Alloc>::iterator     ft::vector<T, Alloc>::erase(iterator first, iterator last) {
+
+    int n = &*last - &*first;
+    iterator it = first;
+    for (int i = 0; i < n; i++)
+        it = erase(it);
+    return it;
 
 }
 
- //       template <class InputIterator>
-  //          void    insert (iterator position, InputIterator first, InputIterator last);
+template <class T, class Alloc>
+void        ft::vector<T, Alloc>::swap(vector& x) {
+
+    vector<T, Alloc> swp = *this;
+
+    *this = x;
+    x = swp;
+}
+
+template <class T, class Alloc>
+bool operator== (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
+    if (lhs.size() != rhs.size())
+        return false;
+    for (int i = 0; i < lhs.size(); i++)
+        if (lhs[i] != rhs[i])
+            return false;
+    return true;
+}
+
+template <class T, class Alloc>
+bool operator!= (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
+    return !(lhs == rhs);
+}
+
+template <class T, class Alloc>
+bool operator<  (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
+    typename ft::vector<T,Alloc>::const_iterator first1 = lhs.begin();
+    typename ft::vector<T,Alloc>::const_iterator last1 = lhs.end();
+    typename ft::vector<T,Alloc>::const_iterator first2 = rhs.begin();
+    typename ft::vector<T,Alloc>::const_iterator last2= rhs.end();
+
+    while (first1!=last1)
+    {
+        if (first2==last2 || *first2<*first1) return false;
+        else if (*first1<*first2) return true;
+        ++first1; ++first2;
+    }
+    return (first2!=last2);
+
+}
+
+template <class T, class Alloc>
+bool operator<= (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
+    if (lhs == rhs)
+        return true;
+    return lhs < rhs;
+}
+
+template <class T, class Alloc>
+bool operator>  (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
+    return !(lhs < rhs) && !(lhs == rhs);
+}
+
+template <class T, class Alloc>
+bool operator>= (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
+    if (lhs == rhs)
+        return true;
+    return lhs > rhs;
+}
 
 
 #endif 
