@@ -30,8 +30,8 @@ int main() {
 
 
 
-  vector<int> foo (3u,100);   // three ints with a value of 100
-  vector<int> bar (2u,200);   // two ints with a value of 200
+  vector<int> foo (3,100);   // three ints with a value of 100
+  vector<int> bar (2,200);   // two ints with a value of 200
 
   if (foo==bar) std::cout << "foo and bar are equal\n";
   if (foo!=bar) std::cout << "foo and bar are not equal\n";

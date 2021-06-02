@@ -35,24 +35,24 @@ namespace ft {
 
 
         //      MEMBER FUNCTIONS
-        explicit vector(const allocator_type& alloc = allocator_type()) { len = 0; siz = 0; }
+        explicit vector(const allocator_type& alloc = allocator_type()) { (void)alloc; len = 0; siz = 0; }
         explicit vector(size_type n, const value_type& val = value_type(),
                 const allocator_type& alloc = allocator_type()) { 
             this->alloc = alloc;
             array = this->alloc.allocate(n);
-            for (int i = 0; i < n; i++)
+            for (size_type i = 0; i < n; i++)
                 this->alloc.construct(array + i, val);
             len = n;
             siz = n;
         }
         template <class InputIterator>
-            vector (InputIterator first, InputIterator last,
+            vector (InputIterator first, typename std::enable_if<std::is_same<InputIterator, ft::iterator>::value, InputIterator(),
                     const allocator_type& alloc = allocator_type()) {
                 len = &(*last) - &(*first); 
                 siz = len;
                 this->alloc = alloc;
                 array = this->alloc.allocate(siz);
-                for (int i = 0; i < len; i++) {
+                for (size_type i = 0; i < len; i++) {
                     //array[i] = *first++;
                     this->alloc.construct(array + i, *first++);
                 }
@@ -62,22 +62,22 @@ namespace ft {
             siz = x.siz;
             alloc = x.alloc;
             array = alloc.allocate(siz);
-            for (int i = 0; i < len; i ++) {
+            for (size_type i = 0; i < len; i ++) {
            //     array[i] = x[i];
                 this->alloc.construct(array + i, x[i]);
             }
         }
         ~vector() { 
-            for (int i = 0; i < len; i++)
+            for (size_type i = 0; i < len; i++)
                 alloc.destroy(array + i);
             alloc.deallocate(array, siz);
         }
         vector& operator=(const vector& x) {
             value_type * tmp = array;
             array = alloc.allocate(x.siz);
-            for (int i = 0; i < x.len; i++)
+            for (size_type i = 0; i < x.len; i++)
                 alloc.construct(array + i, x[i]);
-            for (int i = 0; i < len; i++)
+            for (size_type i = 0; i < len; i++)
                 alloc.destroy(tmp + i);
             alloc.deallocate(tmp, siz);
             len = x.len;
@@ -246,22 +246,22 @@ namespace ft {
         size_type   max_size() const { return alloc.max_size(); }
         void        resize (size_type n, value_type val = value_type()) {
             if (n < len) {
-                for (int i = n; i < len; i++)
+                for (size_type i = n; i < len; i++)
                     alloc.destroy(array + i);
                 len = n;
             }
             else if (n < siz) {
-                for (int i = len; i < n; i++)
+                for (size_type i = len; i < n; i++)
                     alloc.construct(array + i, val);
                 len = n;
             }
             else {
                 value_type * tmp = array;
                 array = alloc.allocate(n);
-                for (int i = 0; i < len; i++)
+                for (size_type i = 0; i < len; i++)
                     array[i] = tmp[i];
                 alloc.deallocate(tmp, siz);
-                for (int i = len; i < n; i++)
+                for (size_type i = len; i < n; i++)
                     alloc.construct(array + i, val);
                 len = n;
                 siz = n;
@@ -274,7 +274,7 @@ namespace ft {
             if (n > siz) {
                 value_type * tmp = array;
                 array = alloc.allocate(n);
-                for (int i = 0; i < len; i++) {
+                for (size_type i = 0; i < len; i++) {
                     array[i] = tmp[i];
                     alloc.destroy(tmp + i);
                 }
@@ -331,7 +331,7 @@ void    ft::vector<T, Alloc>::push_back(const T & val) {
     else {
         value_type * tmp = this->array;
         this->array = this->alloc.allocate(this->siz ? this->siz * 2 : 1);
-        for (int i = 0; i < this->len; i++)
+        for (size_type i = 0; i < this->len; i++)
             this->array[i] = tmp[i];
         this->alloc.deallocate(tmp, this->siz);
         //this->array[this->siz] = val;
@@ -349,7 +349,7 @@ void    ft::vector<T, Alloc>::pop_back() {
 
 template <class T, class Alloc>
 void    ft::vector<T, Alloc>::clear() {
-    for (int i = 0; i < len; i++)
+    for (size_type i = 0; i < len; i++)
         alloc.destroy(array[i]);
     alloc.deallocate(array, siz);
     len = 0;
@@ -371,7 +371,7 @@ template <class T, class Alloc>
             array = alloc.allocate(n);
             for (int i = 0; i < n; i++)
                 alloc.construct(array + i, *first++);
-            for (int i = 0; i < len; i++)
+            for (size_type i = 0; i < len; i++)
                 alloc.destroy(tmp + i);
             alloc.deallocate(tmp, siz);
             len = n;
@@ -382,16 +382,16 @@ template <class T, class Alloc>
 template <class T, class Alloc>
 void    ft::vector<T, Alloc>::assign (size_type n, const value_type& val) {
     if (n <= siz) {
-        for (int i = 0; i < n; i++)
+        for (size_type i = 0; i < n; i++)
             alloc.construct(array + i, val);
         len = n;
     }
     else {
         value_type * tmp = array;
         array = alloc.allocate(n);
-        for (int i = 0; i < n; i++)
+        for (size_type i = 0; i < n; i++)
             alloc.construct(array + i, val); 
-        for (int i = 0; i < len; i++)
+        for (size_type i = 0; i < len; i++)
             alloc.destroy(tmp + i);
         alloc.deallocate(tmp, siz);
         len = n;
@@ -417,7 +417,7 @@ void        ft::vector<T, Alloc>::insert(iterator position, size_type n, const v
         for (i = len - 1; i >= 0 && &array[i] >= &*position; i--)
             array[i + n] = array[i];
         i++;
-        for (int j = 0; j < n; j++)
+        for (size_type j = 0; j < n; j++)
             alloc.construct(array + i + j, val);
         len += n;
     }
@@ -469,7 +469,7 @@ typename ft::vector<T, Alloc>::iterator     ft::vector<T, Alloc>::erase(iterator
 
     int n = &*last - &*first;
     iterator it = first;
-    for (int i = 0; i < n; i++)
+    for (size_type i = 0; i < n; i++)
         it = erase(it);
     return it;
 
@@ -488,7 +488,7 @@ template <class T, class Alloc>
 bool operator== (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
     if (lhs.size() != rhs.size())
         return false;
-    for (int i = 0; i < lhs.size(); i++)
+    for (size_t i = 0; i < lhs.size(); i++)
         if (lhs[i] != rhs[i])
             return false;
     return true;
