@@ -46,8 +46,10 @@ namespace ft {
             siz = n;
         }
         template <class InputIterator>
-            vector (InputIterator first, typename std::enable_if<std::is_same<InputIterator, ft::iterator>::value, InputIterator(),
-                    const allocator_type& alloc = allocator_type()) {
+			vector (InputIterator first, typename ft::enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last,
+                      const allocator_type& alloc = allocator_type())
+//            vector (InputIterator first, typename std::enable_if<std::is_same<InputIterator, ft::iterator>::value, InputIterator(),
+//                    const allocator_type& alloc = allocator_type()) {
                 len = &(*last) - &(*first); 
                 siz = len;
                 this->alloc = alloc;
