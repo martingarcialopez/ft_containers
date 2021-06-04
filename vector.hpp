@@ -46,8 +46,8 @@ namespace ft {
             siz = n;
         }
         template <class InputIterator>
-			vector (InputIterator first, typename ft::enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last,
-                      const allocator_type& alloc = allocator_type())
+			vector (InputIterator first, typename std::enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last,
+                      const allocator_type& alloc = allocator_type()) {
 //            vector (InputIterator first, typename std::enable_if<std::is_same<InputIterator, ft::iterator>::value, InputIterator(),
 //                    const allocator_type& alloc = allocator_type()) {
                 len = &(*last) - &(*first); 
@@ -99,6 +99,7 @@ namespace ft {
 
             iterator() {}
             iterator(pointer ptr) : ptr(ptr) {}
+            //iterator(iterator rit) { ptr = &(*rit); }
 
             reference operator*() const { return *ptr; }
             pointer operator->() const { return ptr; }
@@ -137,6 +138,9 @@ namespace ft {
 
             const_iterator() {}
             const_iterator(pointer ptr) : ptr(ptr) {}
+            const_iterator(const_pointer ptr) : ptr(ptr) {}
+            //const_iterator(iterator rit) { ptr = &(*rit); }
+            //const_iterator(const_iterator & rit) { ptr = &(*rit); }
 
             const_reference operator*() const { return *ptr; }
             const_pointer operator->() const { return ptr; }
@@ -172,6 +176,7 @@ namespace ft {
 
             reverse_iterator() {}
             reverse_iterator(pointer ptr) : ptr(ptr) {}
+            //reverse_iterator(reverse_iterator & rit) { ptr = &(*rit); }
 
             reference operator*() const { return *ptr; }
             pointer operator->() const { return ptr; }
@@ -204,8 +209,9 @@ namespace ft {
         public:
 
             const_reverse_iterator() {}
-            const_reverse_iterator(pointer ptr) : ptr(ptr) {}
-            const_reverse_iterator(reverse_iterator rit) { ptr = &(*rit); }
+            const_reverse_iterator(const_pointer ptr) : ptr(ptr) {}
+            //const_reverse_iterator(reverse_iterator rit) { ptr = &(*rit); }
+            //const_reverse_iterator(const_reverse_iterator & rit) { ptr = &(*rit); }
 
             const_reference operator*() const { return *ptr; }
             const_pointer operator->() const { return ptr; }
@@ -303,12 +309,12 @@ namespace ft {
         void        push_back(const value_type& val);
         void        pop_back();
         template    <class InputIterator>
-            void    assign (InputIterator first, InputIterator last);
+            void    assign (InputIterator first, typename std::enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last);
         void        assign (size_type n, const value_type& val);
         iterator    insert (iterator position, const value_type& val);
         void        insert (iterator position, size_type n, const value_type& val);
         template <class InputIterator>
-            void    insert (iterator position, InputIterator first, InputIterator last);
+            void    insert (iterator position, InputIterator first, typename std::enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last);
         iterator    erase (iterator position);
         iterator    erase (iterator first, iterator last);
         void        swap (vector& x);
@@ -316,10 +322,6 @@ namespace ft {
 
 
     //      NON MEMBER-FUNCTIONS OVERLOADS
-    //
-    //
-    //
-    //
 
     };
 }
@@ -352,7 +354,7 @@ void    ft::vector<T, Alloc>::pop_back() {
 template <class T, class Alloc>
 void    ft::vector<T, Alloc>::clear() {
     for (size_type i = 0; i < len; i++)
-        alloc.destroy(array[i]);
+        alloc.destroy(&array[i]);
     alloc.deallocate(array, siz);
     len = 0;
     siz = 0;
@@ -360,18 +362,18 @@ void    ft::vector<T, Alloc>::clear() {
 
 template <class T, class Alloc>
     template <class InputIterator>
-    void    ft::vector<T, Alloc>::assign (InputIterator first, InputIterator last) {
+    void    ft::vector<T, Alloc>::assign (InputIterator first, typename std::enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last) {
 
-        int n = &(*last) - &(*first); 
+        size_type n = &(*last) - &(*first); 
         if (n <= siz) {
-            for (int i = 0; i < n; i++)
+            for (size_type i = 0; i < n; i++)
                 alloc.construct(array + i, *first++);
             len = n;
         }
         else {
             value_type * tmp = array;
             array = alloc.allocate(n);
-            for (int i = 0; i < n; i++)
+            for (size_type i = 0; i < n; i++)
                 alloc.construct(array + i, *first++);
             for (size_type i = 0; i < len; i++)
                 alloc.destroy(tmp + i);
@@ -426,14 +428,14 @@ void        ft::vector<T, Alloc>::insert(iterator position, size_type n, const v
     else {
         value_type * tmp = array;
         array = alloc.allocate(siz + n - (siz - len));
-        for (int i = 0; i < len; i++)
+        for (size_type i = 0; i < len; i++)
             array[i] = tmp[i];
         for (i = len - 1; i >= 0 && &tmp[i] >= &*position; i--)
             array[i + n] = array[i];
         i++;
-        for (int j = 0; j < n; j++)
+        for (size_type j = 0; j < n; j++)
             alloc.construct(array + i + j , val);
-        for (int i = 0; i < len; i++)
+        for (size_type i = 0; i < len; i++)
             alloc.destroy(tmp + i);
         alloc.deallocate(tmp, siz);
         siz += n - (siz - len);
@@ -443,7 +445,7 @@ void        ft::vector<T, Alloc>::insert(iterator position, size_type n, const v
 
 template <class T, class Alloc>
 template <class InputIterator>
-void    ft::vector<T, Alloc>::insert(iterator position, InputIterator first, InputIterator last) {
+void    ft::vector<T, Alloc>::insert(iterator position, InputIterator first, typename std::enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last) {
         
     int n = &*last - &*first;
     int pos = &*position - &array[0];
@@ -456,7 +458,7 @@ void    ft::vector<T, Alloc>::insert(iterator position, InputIterator first, Inp
 template <class T, class Alloc>
 typename ft::vector<T, Alloc>::iterator     ft::vector<T, Alloc>::erase(iterator position) {
 
-    int i = 0;
+    size_type i = 0;
     while (i < len && &array[i] != &*position)
         i++;
     iterator it = iterator(&array[i]);
@@ -469,7 +471,7 @@ typename ft::vector<T, Alloc>::iterator     ft::vector<T, Alloc>::erase(iterator
 template <class T, class Alloc>
 typename ft::vector<T, Alloc>::iterator     ft::vector<T, Alloc>::erase(iterator first, iterator last) {
 
-    int n = &*last - &*first;
+    size_type n = &*last - &*first;
     iterator it = first;
     for (size_type i = 0; i < n; i++)
         it = erase(it);
