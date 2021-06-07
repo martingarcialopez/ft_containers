@@ -72,7 +72,8 @@ namespace ft {
         ~vector() { 
             for (size_type i = 0; i < len; i++)
                 alloc.destroy(array + i);
-            alloc.deallocate(array, siz);
+            if (siz > 0)
+                alloc.deallocate(array, siz);
         }
         vector& operator=(const vector& x) {
             value_type * tmp = array;
@@ -81,7 +82,8 @@ namespace ft {
                 alloc.construct(array + i, x[i]);
             for (size_type i = 0; i < len; i++)
                 alloc.destroy(tmp + i);
-            alloc.deallocate(tmp, siz);
+            if (siz > 0)
+                alloc.deallocate(tmp, siz);
             len = x.len;
             siz = x.siz;
             return *this;
@@ -268,7 +270,8 @@ namespace ft {
                 array = alloc.allocate(n);
                 for (size_type i = 0; i < len; i++)
                     array[i] = tmp[i];
-                alloc.deallocate(tmp, siz);
+                if (siz > 0)
+                    alloc.deallocate(tmp, siz);
                 for (size_type i = len; i < n; i++)
                     alloc.construct(array + i, val);
                 len = n;
@@ -286,7 +289,8 @@ namespace ft {
                     array[i] = tmp[i];
                     alloc.destroy(tmp + i);
                 }
-                alloc.deallocate(tmp, siz);
+                if (siz > 0)
+                    alloc.deallocate(tmp, siz);
                 siz = n;
             }
         }
@@ -337,7 +341,8 @@ void    ft::vector<T, Alloc>::push_back(const T & val) {
         this->array = this->alloc.allocate(this->siz ? this->siz * 2 : 1);
         for (size_type i = 0; i < this->len; i++)
             this->array[i] = tmp[i];
-        this->alloc.deallocate(tmp, this->siz);
+        if (this->siz > 0)
+            this->alloc.deallocate(tmp, this->siz);
         //this->array[this->siz] = val;
         this->alloc.construct(this->array + this->len++, val);
         this->siz = this->siz ? this->siz * 2 : 1;
@@ -355,7 +360,8 @@ template <class T, class Alloc>
 void    ft::vector<T, Alloc>::clear() {
     for (size_type i = 0; i < len; i++)
         alloc.destroy(&array[i]);
-    alloc.deallocate(array, siz);
+    if (siz > 0)
+        alloc.deallocate(array, siz);
     len = 0;
     siz = 0;
 }
@@ -377,7 +383,8 @@ template <class T, class Alloc>
                 alloc.construct(array + i, *first++);
             for (size_type i = 0; i < len; i++)
                 alloc.destroy(tmp + i);
-            alloc.deallocate(tmp, siz);
+            if (siz > 0)
+                alloc.deallocate(tmp, siz);
             len = n;
             siz = n;
         }
@@ -397,7 +404,8 @@ void    ft::vector<T, Alloc>::assign (size_type n, const value_type& val) {
             alloc.construct(array + i, val); 
         for (size_type i = 0; i < len; i++)
             alloc.destroy(tmp + i);
-        alloc.deallocate(tmp, siz);
+        if (siz > 0)
+            alloc.deallocate(tmp, siz);
         len = n;
         siz = n;
     }
@@ -437,7 +445,8 @@ void        ft::vector<T, Alloc>::insert(iterator position, size_type n, const v
             alloc.construct(array + i + j , val);
         for (size_type i = 0; i < len; i++)
             alloc.destroy(tmp + i);
-        alloc.deallocate(tmp, siz);
+        if (siz > 0)
+            alloc.deallocate(tmp, siz);
         siz += n - (siz - len);
         len += n;
     }
