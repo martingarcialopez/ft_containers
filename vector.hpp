@@ -252,7 +252,7 @@ namespace ft {
 
 
         //      CAPACITY
-        size_type   size() const { return len; }
+        size_type   size() const { return /*len*/ 42; }
         size_type   max_size() const { return alloc.max_size(); }
         void        resize (size_type n, value_type val = value_type()) {
             if (n < len) {
