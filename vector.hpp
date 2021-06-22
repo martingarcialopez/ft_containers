@@ -101,7 +101,7 @@ namespace ft {
 
             iterator() {}
             iterator(pointer ptr) : ptr(ptr) {}
-            //iterator(iterator rit) { ptr = &(*rit); }
+            //iterator(iterator& it) { ptr = &(*it); }
 
             reference operator*() const { return *ptr; }
             pointer operator->() const { return ptr; }
@@ -164,6 +164,10 @@ namespace ft {
             friend const_iterator operator-(const const_iterator& a, const int& b) { return &*a - b; }
             friend const_iterator operator-(const int& a, const const_iterator& b) { return a - &*b; }
 
+            friend bool operator<(const const_iterator&a, const const_iterator&b ) { return &*a < &*b; }
+            friend bool operator>(const const_iterator&a, const const_iterator&b ) { return &*a > &*b; }
+            friend bool operator<=(const const_iterator&a, const const_iterator&b ) { return &*a <= &*b; }
+            friend bool operator>=(const const_iterator&a, const const_iterator&b ) { return &*a >= &*b; }
             
 
         };
@@ -200,6 +204,11 @@ namespace ft {
             friend reverse_iterator operator-(const reverse_iterator& a, const int& b) { return &*a - b; }
             friend reverse_iterator operator-(const int& a, const reverse_iterator& b) { return a - &*b; }
 
+            friend bool operator<(const reverse_iterator&a, const reverse_iterator&b ) { return &*a < &*b; }
+            friend bool operator>(const reverse_iterator&a, const reverse_iterator&b ) { return &*a > &*b; }
+            friend bool operator<=(const reverse_iterator&a, const reverse_iterator&b ) { return &*a <= &*b; }
+            friend bool operator>=(const reverse_iterator&a, const reverse_iterator&b ) { return &*a >= &*b; }
+
         };
 
         struct const_reverse_iterator {
@@ -235,6 +244,10 @@ namespace ft {
             friend const_reverse_iterator operator-(const const_reverse_iterator& a, const int& b) { return &*a - b; }
             friend const_reverse_iterator operator-(const int& a, const const_reverse_iterator& b) { return a - &*b; }
 
+            friend bool operator<(const const_reverse_iterator&a, const const_reverse_iterator&b ) { return &*a < &*b; }
+            friend bool operator>(const const_reverse_iterator&a, const const_reverse_iterator&b ) { return &*a > &*b; }
+            friend bool operator<=(const const_reverse_iterator&a, const const_reverse_iterator&b ) { return &*a <= &*b; }
+            friend bool operator>=(const const_reverse_iterator&a, const const_reverse_iterator&b ) { return &*a >= &*b; }
         };
 
         iterator begin() { return iterator(&array[0]); }
@@ -252,7 +265,7 @@ namespace ft {
 
 
         //      CAPACITY
-        size_type   size() const { return /*len*/ 42; }
+        size_type   size() const { return len; }
         size_type   max_size() const { return alloc.max_size(); }
         void        resize (size_type n, value_type val = value_type()) {
             if (n < len) {
