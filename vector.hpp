@@ -5,6 +5,17 @@
 # include <cmath>
 # include <iostream>
 
+template<bool B, class T = void>
+struct enable_if {};
+
+template<class T>
+struct enable_if<true, T> { typedef T type; };
+
+template<class T>
+struct is_integral {
+    bool value = std::numeric_limits<T>::is_integer;
+};
+
 namespace ft {
 
     template <class T, class Alloc = std::allocator<T> >
@@ -46,9 +57,9 @@ namespace ft {
             siz = n;
         }
         template <class InputIterator>
-			vector (InputIterator first, typename std::enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last,
+			vector (InputIterator first, typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type last,
                       const allocator_type& alloc = allocator_type()) {
-//            vector (InputIterator first, typename std::enable_if<std::is_same<InputIterator, ft::iterator>::value, InputIterator(),
+//            vector (InputIterator first, typename enable_if<std::is_same<InputIterator, ft::iterator>::value, InputIterator(),
 //                    const allocator_type& alloc = allocator_type()) {
                 len = &(*last) - &(*first); 
                 siz = len;
@@ -326,12 +337,12 @@ namespace ft {
         void        push_back(const value_type& val);
         void        pop_back();
         template    <class InputIterator>
-            void    assign (InputIterator first, typename std::enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last);
+            void    assign (InputIterator first, typename enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type last);
         void        assign (size_type n, const value_type& val);
         iterator    insert (iterator position, const value_type& val);
         void        insert (iterator position, size_type n, const value_type& val);
         template <class InputIterator>
-            void    insert (iterator position, InputIterator first, typename std::enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last);
+            void    insert (iterator position, InputIterator first, typename enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type last);
         iterator    erase (iterator position);
         iterator    erase (iterator first, iterator last);
         void        swap (vector& x);
@@ -381,7 +392,7 @@ void    ft::vector<T, Alloc>::clear() {
 
 template <class T, class Alloc>
     template <class InputIterator>
-    void    ft::vector<T, Alloc>::assign (InputIterator first, typename std::enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last) {
+    void    ft::vector<T, Alloc>::assign (InputIterator first, typename enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type last) {
 
         size_type n = &(*last) - &(*first); 
         if (n <= siz) {
@@ -467,7 +478,7 @@ void        ft::vector<T, Alloc>::insert(iterator position, size_type n, const v
 
 template <class T, class Alloc>
 template <class InputIterator>
-void    ft::vector<T, Alloc>::insert(iterator position, InputIterator first, typename std::enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last) {
+void    ft::vector<T, Alloc>::insert(iterator position, InputIterator first, typename enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type last) {
         
     int n = &*last - &*first;
     int pos = &*position - &array[0];
