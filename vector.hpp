@@ -11,10 +11,28 @@ struct enable_if {};
 template<class T>
 struct enable_if<true, T> { typedef T type; };
 
-template<class T>
-struct is_integral {
-    bool value = std::numeric_limits<T>::is_integer;
-};
+template<typename> struct is_integral_base: std::false_type {};
+template<> struct is_integral_base<bool>: std::true_type {};
+template<> struct is_integral_base<const bool>: std::true_type {};
+template<> struct is_integral_base<int>: std::true_type {};
+template<> struct is_integral_base<const int>: std::true_type {};
+template<> struct is_integral_base<short>: std::true_type {};
+template<> struct is_integral_base<const short>: std::true_type {};
+template<> struct is_integral_base<char>: std::true_type {};
+template<> struct is_integral_base<const char>: std::true_type {};
+template<> struct is_integral_base<char16_t>: std::true_type {};
+template<> struct is_integral_base<const char16_t>: std::true_type {};
+template<> struct is_integral_base<char32_t>: std::true_type {};
+template<> struct is_integral_base<const char32_t>: std::true_type {};
+template<> struct is_integral_base<wchar_t>: std::true_type {};
+template<> struct is_integral_base<const wchar_t>: std::true_type {};
+template<> struct is_integral_base<long>: std::true_type {};
+template<> struct is_integral_base<const long>: std::true_type {};
+template<> struct is_integral_base<long long>: std::true_type {};
+template<> struct is_integral_base<const long long>: std::true_type {};
+template<typename T> struct is_integral: is_integral_base<T> {};
+
+
 
 namespace ft {
 
@@ -104,6 +122,14 @@ namespace ft {
         //      ITERATORS
         struct iterator {
 
+        public:
+
+        typedef T value_type;
+        typedef typename allocator_type::reference reference;
+        typedef typename allocator_type::pointer pointer;
+        typedef ptrdiff_t difference_type;
+        typedef std::random_access_iterator_tag iterator_category;
+
         private: 
 
             pointer ptr;
@@ -142,6 +168,8 @@ namespace ft {
         };
 
         struct const_iterator {
+
+        public:
 
         private: 
 
@@ -184,6 +212,9 @@ namespace ft {
         };
 
         struct reverse_iterator {
+
+        public:
+        
 
         private: 
 
@@ -352,6 +383,36 @@ namespace ft {
     //      NON MEMBER-FUNCTIONS OVERLOADS
 
     };
+
+template <class S>
+struct iterator_traits{
+  typedef typename S::value_type value_type;
+  typedef typename S::difference_type difference_type;
+  typedef typename S::iterator_category iterator_category;;
+  typedef typename S::pointer pointer;
+  typedef typename S::reference reference;
+};
+
+template <class S>
+struct iterator_traits<S*>
+{
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef S                               value_type;
+    typedef S*                              pointer;
+    typedef S&                              reference;
+    typedef std::ptrdiff_t                  difference_type;
+};
+
+template <class S>
+struct iterator_traits<const S*>
+{
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef S                               value_type;
+    typedef S*                              pointer;
+    typedef S&                              reference;
+    typedef std::ptrdiff_t                  difference_type;
+};
+
 }
 
 template <class T, class Alloc>
