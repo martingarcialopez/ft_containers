@@ -156,13 +156,14 @@ namespace ft {
             friend bool operator!=(const iterator& a, const iterator& b) { return a.ptr != b.ptr; }
 
 
-            iterator operator-(difference_type& rhs) { return iterator(ptr - rhs); }
+            //iterator operator+(difference_type& rhs) { return iterator(ptr + rhs); }
+            //iterator operator-(difference_type& rhs) { return iterator(ptr - rhs); }
 
 
-            //friend iterator operator+(const iterator& a, const int& b) { return &*a + b; }
-            //friend iterator operator+(const int& a, const iterator& b) { return a + &*b; }
-            //friend iterator operator-(const iterator& a, const int& b) { return &*a - b; }
-            //friend iterator operator-(const int& a, const iterator& b) { return a - &*b; }
+            friend iterator operator+(const iterator& a, const int& b) { return &*a + b; }
+            friend iterator operator+(const int& a, const iterator& b) { return a + &*b; }
+            friend iterator operator-(const iterator& a, const int& b) { return &*a - b; }
+            friend iterator operator-(const int& a, const iterator& b) { return a - &*b; }
 
 
             friend bool operator<(const iterator&a, const iterator&b ) { return &*a < &*b; }
