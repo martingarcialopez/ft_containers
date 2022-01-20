@@ -6,14 +6,14 @@
 #    By: hthomas <hthomas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/04/25 16:00:55 by hthomas           #+#    #+#              #
-#    Updated: 2021/07/06 10:09:25 by mgarcia-         ###   ########.fr        #
+#    Updated: 2022/01/20 09:56:05 by mgarcia-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME =		a.out
 
 CXX =		clang++
-CFLAGS =	-Wall -Werror -Wextra -std=c++98
+CFLAGS =	-Wall -Werror -Wextra -std=c++98 -fsanitize=address -g3
 
 SRCS =		main_vector.cpp
 
@@ -23,7 +23,7 @@ all: $(NAME)
 
 clean:
 				$(RM) $(OBJS)
-				rm ft std
+				rm -rf ft std
 
 fclean:			clean
 				$(RM) $(NAME)
