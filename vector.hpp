@@ -10,7 +10,7 @@ struct enable_if {};
 
 template<class T>
 struct enable_if<true, T> { typedef T type; };
-
+/*
 template<typename> struct is_integral_base: std::false_type {};
 template<> struct is_integral_base<bool>: std::true_type {};
 template<> struct is_integral_base<const bool>: std::true_type {};
@@ -31,7 +31,7 @@ template<> struct is_integral_base<const long>: std::true_type {};
 template<> struct is_integral_base<long long>: std::true_type {};
 template<> struct is_integral_base<const long long>: std::true_type {};
 template<typename T> struct is_integral: is_integral_base<T> {};
-
+*/
 
 
 namespace ft {
@@ -75,8 +75,10 @@ namespace ft {
             		siz = n;
         		}
         		template <class InputIterator>
-					vector (InputIterator first, typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type last,
-                      		const allocator_type& alloc = allocator_type()) {
+					vector (InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last,
+							const allocator_type& alloc = allocator_type()) {
+					//vector (InputIterator first, typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type last,
+                    //  		const allocator_type& alloc = allocator_type()) {
 						//            vector (InputIterator first, typename enable_if<std::is_same<InputIterator, ft::iterator>::value, InputIterator(),
 						//                    const allocator_type& alloc = allocator_type()) {
 						/*                len = &(*last) - &(*first); 
@@ -152,6 +154,9 @@ namespace ft {
             				reference operator*() const { return *ptr; }
             				pointer operator->() const { return ptr; }
 
+							//							iterator operator[] { return }
+        					//iterator operator[](size_type n) { return iterator(&array[n]); }
+
             				iterator& operator++() { ptr++; return *this; }
             				iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
 
@@ -161,24 +166,10 @@ namespace ft {
             				iterator& operator+=(difference_type n) { ptr += n; return *this; }
             				iterator& operator-=(difference_type n) { ptr -= n; return *this; }
 
-            				/*			iterator operator+(const iterator& a) { return iterator(this->ptr + &*a); }
-            							iterator operator-(const iterator& a) { return iterator(this->ptr - &*b); }
-							 */
-							/*							iterator			operator-(difference_type n) const { return super::operator-(n); };
-														iterator			operator+(difference_type n) const { return super::operator+(n); };
-							 */
+							difference_type operator+(const iterator &rhs) const { return (this->ptr + rhs.ptr); }
+							difference_type operator-(const iterator &rhs) const { return (this->ptr - rhs.ptr); }
 
- 							iterator	operator+(iterator const & rhs) const {
-								iterator it;
-								it->ptr = this->ptr + &*rhs;
-								return it;
-    						}
-
- 							iterator	operator-(iterator const & rhs) const {
-								iterator it;
-								it->ptr = this->ptr - &*rhs;
-								return it;
-    						}
+							iterator::reference	operator[](difference_type n) const { return (this->ptr[n]); }
 
             				friend bool operator==(const iterator& a, const iterator& b) { return a.ptr == b.ptr; }
             				friend bool operator!=(const iterator& a, const iterator& b) { return a.ptr != b.ptr; }
@@ -203,6 +194,12 @@ namespace ft {
 
         				public:
 
+        					typedef T value_type;
+        					typedef typename allocator_type::reference reference;
+        					typedef typename allocator_type::pointer pointer;
+        					typedef ptrdiff_t difference_type;
+        					typedef std::random_access_iterator_tag iterator_category;
+
         				private: 
 
             				const_pointer ptr;
@@ -213,7 +210,7 @@ namespace ft {
             				const_iterator(pointer ptr) : ptr(ptr) {}
             				const_iterator(const_pointer ptr) : ptr(ptr) {}
             				const_iterator(iterator it) { ptr = &(*it); }
-            				//const_iterator(const_iterator & rit) { ptr = &(*rit); }
+            				//const_iterator(const_iterator & cit) { ptr = &(*cit); }
 
             				const_reference operator*() const { return *ptr; }
             				const_pointer operator->() const { return ptr; }
@@ -226,6 +223,11 @@ namespace ft {
 
             				const_iterator& operator+=(difference_type n) { ptr += n; return *this; }
             				const_iterator& operator-=(difference_type n) { ptr -= n; return *this; }
+
+							difference_type operator+(const const_iterator &rhs) const { return (this->ptr + rhs.ptr); }
+							difference_type operator-(const const_iterator &rhs) const { return (this->ptr - rhs.ptr); }
+
+							const_iterator::reference	operator[](difference_type n) const { return (this->ptr[n]); }
 
             				friend bool operator==(const const_iterator& a, const const_iterator& b) { return a.ptr == b.ptr; }
             				friend bool operator!=(const const_iterator& a, const const_iterator& b) { return a.ptr != b.ptr; }
@@ -247,16 +249,26 @@ namespace ft {
 
         				public:
 
+        					typedef T value_type;
+        					typedef typename allocator_type::reference reference;
+        					typedef typename allocator_type::pointer pointer;
+        					typedef ptrdiff_t difference_type;
+        					typedef std::random_access_iterator_tag iterator_category;
+
 
         				private: 
 
             				pointer ptr;
+							iterator _base;
 
         				public:
 
             				reverse_iterator() {}
             				reverse_iterator(pointer ptr) : ptr(ptr) {}
-            				//reverse_iterator(reverse_iterator & rit) { ptr = &(*rit); }
+            				reverse_iterator(iterator & it) { ptr = &(*it); }
+            				reverse_iterator(reverse_iterator & rit) { ptr = &(*rit); }
+
+							iterator base() const { return this->_base; };
 
             				reference operator*() const { return *ptr; }
             				pointer operator->() const { return ptr; }
@@ -269,6 +281,9 @@ namespace ft {
 
             				reverse_iterator& operator+=(difference_type n) { ptr -= n; return *this; }
             				reverse_iterator& operator-=(difference_type n) { ptr += n; return *this; }
+
+							difference_type operator+(const reverse_iterator &rhs) const { return (this->ptr - rhs.ptr); }
+							difference_type operator-(const reverse_iterator &rhs) const { return (this->ptr + rhs.ptr); }
 
             				friend bool operator==(const reverse_iterator& a, const reverse_iterator& b) { return a.ptr == b.ptr; }
             				friend bool operator!=(const reverse_iterator& a, const reverse_iterator& b) { return a.ptr != b.ptr; }
@@ -287,6 +302,14 @@ namespace ft {
 
         			struct const_reverse_iterator {
 
+						public:
+
+        					typedef T value_type;
+        					typedef typename allocator_type::reference reference;
+        					typedef typename allocator_type::pointer pointer;
+        					typedef ptrdiff_t difference_type;
+        					typedef std::random_access_iterator_tag iterator_category;
+
         				private: 
 
             				const_pointer ptr;
@@ -295,8 +318,10 @@ namespace ft {
 
             				const_reverse_iterator() {}
             				const_reverse_iterator(const_pointer ptr) : ptr(ptr) {}
-            				//const_reverse_iterator(reverse_iterator rit) { ptr = &(*rit); }
-            				//const_reverse_iterator(const_reverse_iterator & rit) { ptr = &(*rit); }
+            				const_reverse_iterator(iterator it) { ptr = &(*it); }
+            				const_reverse_iterator(const_iterator cit) { ptr = &(*cit); }
+            				const_reverse_iterator(reverse_iterator rit) { ptr = &(*rit); }
+            				const_reverse_iterator(const_reverse_iterator & rit) { ptr = &(*rit); }
 
             				const_reference operator*() const { return *ptr; }
             				const_pointer operator->() const { return ptr; }
@@ -309,6 +334,9 @@ namespace ft {
 
             				const_reverse_iterator& operator+=(difference_type n) { ptr -= n; return *this; }
             				const_reverse_iterator& operator-=(difference_type n) { ptr += n; return *this; }
+
+							difference_type operator+(const const_reverse_iterator &rhs) const { return (this->ptr - rhs.ptr); }
+							difference_type operator-(const const_reverse_iterator &rhs) const { return (this->ptr + rhs.ptr); }
 
             				friend bool operator==(const const_reverse_iterator& a, const const_reverse_iterator& b) { return a.ptr == b.ptr; }
             				friend bool operator!=(const const_reverse_iterator& a, const const_reverse_iterator& b) { return a.ptr != b.ptr; }
@@ -400,12 +428,12 @@ namespace ft {
         			void        push_back(const value_type& val);
         			void        pop_back();
         			template    <class InputIterator>
-            			void    assign (InputIterator first, typename enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type last);
+            			void    assign (InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last);
         			void        assign (size_type n, const value_type& val);
         			iterator    insert (iterator position, const value_type& val);
-        			void        insert (iterator position, size_type n, const value_type& val);
+        			iterator	insert (iterator position, size_type n, const value_type& val);
         			template <class InputIterator>
-            			void    insert (iterator position, InputIterator first, typename enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type last);
+            			void    insert (iterator position, InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last);
         			iterator    erase (iterator position);
         			iterator    erase (iterator first, iterator last);
         			void        swap (vector& x);
@@ -485,7 +513,7 @@ namespace ft {
 
 	template <class T, class Alloc>
     	template <class InputIterator>
-    	void    ft::vector<T, Alloc>::assign (InputIterator first, typename enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type last) {
+    	void    ft::vector<T, Alloc>::assign (InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last) {
 
 			InputIterator iter = first;
 			size_type n = 0;
@@ -537,22 +565,25 @@ namespace ft {
 	template <class T, class Alloc> 
 		typename ft::vector<T, Alloc>::iterator   ft::vector<T, Alloc>::insert(iterator position, const value_type& val) {
 
-    		insert(position, 1u, val);
-    		return position;
-
+    		return insert(position, 1u, val);;
 		}
 
 
 	template <class T, class Alloc>
-		void        ft::vector<T, Alloc>::insert(iterator position, size_type n, const value_type& val) {
+		typename ft::vector<T, Alloc>::iterator        ft::vector<T, Alloc>::insert(iterator position, size_type n, const value_type& val) {
+
+			iterator newpos;
 
     		int i;
     		if (len + n <= siz) {
         		for (i = len - 1; i >= 0 && &array[i] >= &*position; i--)
             		array[i + n] = array[i];
         		i++;
-        		for (size_type j = 0; j < n; j++)
+        		for (size_type j = 0; j < n; j++) {
             		alloc.construct(array + i + j, val);
+					if (j == 0)
+						newpos = (array + i);
+				}
         		len += n;
     		}
     		else {
@@ -563,8 +594,11 @@ namespace ft {
         		for (i = len - 1; i >= 0 && &tmp[i] >= &*position; i--)
             		array[i + n] = array[i];
         		i++;
-        		for (size_type j = 0; j < n; j++)
+        		for (size_type j = 0; j < n; j++) {
             		alloc.construct(array + i + j , val);
+					if (j == 0)
+						newpos = (array + i);
+				}
         		for (size_type i = 0; i < len; i++)
             		alloc.destroy(tmp + i);
         		if (siz > 0)
@@ -572,11 +606,12 @@ namespace ft {
         		siz += n - (siz - len);
         		len += n;
     		}
+			return newpos;
 		}
 
 	template <class T, class Alloc>
 		template <class InputIterator>
-		void    ft::vector<T, Alloc>::insert(iterator position, InputIterator first, typename enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type last) {
+		void    ft::vector<T, Alloc>::insert(iterator position, InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last) {
 
 			InputIterator iter = first;
 			size_type n = 0;
