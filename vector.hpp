@@ -11,27 +11,27 @@ struct enable_if {};
 template<class T>
 struct enable_if<true, T> { typedef T type; };
 /*
-template<typename> struct is_integral_base: std::false_type {};
-template<> struct is_integral_base<bool>: std::true_type {};
-template<> struct is_integral_base<const bool>: std::true_type {};
-template<> struct is_integral_base<int>: std::true_type {};
-template<> struct is_integral_base<const int>: std::true_type {};
-template<> struct is_integral_base<short>: std::true_type {};
-template<> struct is_integral_base<const short>: std::true_type {};
-template<> struct is_integral_base<char>: std::true_type {};
-template<> struct is_integral_base<const char>: std::true_type {};
-template<> struct is_integral_base<char16_t>: std::true_type {};
-template<> struct is_integral_base<const char16_t>: std::true_type {};
-template<> struct is_integral_base<char32_t>: std::true_type {};
-template<> struct is_integral_base<const char32_t>: std::true_type {};
-template<> struct is_integral_base<wchar_t>: std::true_type {};
-template<> struct is_integral_base<const wchar_t>: std::true_type {};
-template<> struct is_integral_base<long>: std::true_type {};
-template<> struct is_integral_base<const long>: std::true_type {};
-template<> struct is_integral_base<long long>: std::true_type {};
-template<> struct is_integral_base<const long long>: std::true_type {};
-template<typename T> struct is_integral: is_integral_base<T> {};
-*/
+   template<typename> struct is_integral_base: std::false_type {};
+   template<> struct is_integral_base<bool>: std::true_type {};
+   template<> struct is_integral_base<const bool>: std::true_type {};
+   template<> struct is_integral_base<int>: std::true_type {};
+   template<> struct is_integral_base<const int>: std::true_type {};
+   template<> struct is_integral_base<short>: std::true_type {};
+   template<> struct is_integral_base<const short>: std::true_type {};
+   template<> struct is_integral_base<char>: std::true_type {};
+   template<> struct is_integral_base<const char>: std::true_type {};
+   template<> struct is_integral_base<char16_t>: std::true_type {};
+   template<> struct is_integral_base<const char16_t>: std::true_type {};
+   template<> struct is_integral_base<char32_t>: std::true_type {};
+   template<> struct is_integral_base<const char32_t>: std::true_type {};
+   template<> struct is_integral_base<wchar_t>: std::true_type {};
+   template<> struct is_integral_base<const wchar_t>: std::true_type {};
+   template<> struct is_integral_base<long>: std::true_type {};
+   template<> struct is_integral_base<const long>: std::true_type {};
+   template<> struct is_integral_base<long long>: std::true_type {};
+   template<> struct is_integral_base<const long long>: std::true_type {};
+   template<typename T> struct is_integral: is_integral_base<T> {};
+   */
 
 
 namespace ft {
@@ -77,8 +77,8 @@ namespace ft {
         		template <class InputIterator>
 					vector (InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last,
 							const allocator_type& alloc = allocator_type()) {
-					//vector (InputIterator first, typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type last,
-                    //  		const allocator_type& alloc = allocator_type()) {
+						//vector (InputIterator first, typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type last,
+                    	//  		const allocator_type& alloc = allocator_type()) {
 						//            vector (InputIterator first, typename enable_if<std::is_same<InputIterator, ft::iterator>::value, InputIterator(),
 						//                    const allocator_type& alloc = allocator_type()) {
 						/*                len = &(*last) - &(*first); 
@@ -131,29 +131,61 @@ namespace ft {
 
 
         			//      ITERATORS
+        			
+					template <class Iter>
+						struct iterator_traits {
+  							typedef typename Iter::value_type			value_type;
+  							typedef typename Iter::difference_type		difference_type;
+  							typedef typename Iter::iterator_category	iterator_category;;
+  							typedef typename Iter::pointer 				pointer;
+  							typedef typename Iter::reference 			reference;
+						};
+
+					template <class S>
+						struct iterator_traits<S*> {
+    						typedef std::random_access_iterator_tag iterator_category;
+    						typedef S                               value_type;
+    						typedef S*                              pointer;
+    						typedef S&                              reference;
+    						typedef std::ptrdiff_t                  difference_type;
+						};
+
+					template <class S>
+						struct iterator_traits<const S*> {
+    						typedef std::random_access_iterator_tag iterator_category;
+    						typedef S                               value_type;
+    						typedef S*                              pointer;
+    						typedef S&                              reference;
+    						typedef std::ptrdiff_t                  difference_type;
+						};
+
+					template <typename T>
         			struct iterator {
 
         				public:
 
-        					typedef T value_type;
-        					typedef typename allocator_type::reference reference;
-        					typedef typename allocator_type::pointer pointer;
-        					typedef ptrdiff_t difference_type;
+        					typedef T								value_type;
+        					typedef value_type&						reference;
+        					typedef value_type*						pointer;
+        					typedef ptrdiff_t						difference_type;
         					typedef std::random_access_iterator_tag iterator_category;
 
         				private: 
 
-            				pointer ptr;
+            				pointer _ptr;
 
         				public:
 
             				iterator() {}
-            				iterator(pointer ptr) : ptr(ptr) {}
+            				iterator(pointer ptr) : _ptr(ptr) {}
+							iterator(const T& ref) : ptr(ref) {}
             				//iterator(iterator& it) { ptr = &(*it); }
 							//iterator operator=(iterator & it) { this->ptr = it.ptr; return (*this); }
+							operator iterator<const T> () const { return (iterator<const T>(this->_ptr)); }
 
-            				reference operator*() const { return *ptr; }
+            				reference operator*() const { return *_ptr; }
             				pointer operator->() const { return ptr; }
+							reference operator[](size_t n) const { return *(_ptr + n); }
 
 							//							iterator operator[] { return }
         					//iterator operator[](size_type n) { return iterator(&array[n]); }
@@ -170,7 +202,6 @@ namespace ft {
 							difference_type operator+(const iterator &rhs) const { return (this->ptr + rhs.ptr); }
 							difference_type operator-(const iterator &rhs) const { return (this->ptr - rhs.ptr); }
 
-							iterator::reference	operator[](difference_type n) const { return (this->ptr[n]); }
 
             				friend bool operator==(const iterator& a, const iterator& b) { return a.ptr == b.ptr; }
             				friend bool operator!=(const iterator& a, const iterator& b) { return a.ptr != b.ptr; }
@@ -191,6 +222,23 @@ namespace ft {
 
         			};
 
+
+					template <typename Iter>
+						class reverse_iterator : public iterator<T> {
+
+							typename iterator_traits<Iter>::value_type			value_type;
+							typename iterator_traits<Iter>::difference_type		difference_type;
+							typename iterator_traits<Iter>::pointer				pointer;
+							typename iterator_traits<Iter>::reference			reference;
+							typename iterator_traits<Iter>::iterator_category	iterator_category;
+
+
+
+
+						}
+
+
+/*
         			struct const_iterator {
 
         				public:
@@ -368,6 +416,19 @@ namespace ft {
             				friend bool operator<=(const const_reverse_iterator&a, const const_reverse_iterator&b ) { return &*a <= &*b; }
             				friend bool operator>=(const const_reverse_iterator&a, const const_reverse_iterator&b ) { return &*a >= &*b; }
         			};
+*/
+
+
+					typedef iterator<value_type>					iterator;
+					typedef iterator<const value_type				const_iterator;
+					typedef ft::reverse_iterator<iterator>			reverse_iterator;
+					typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
+
+
+
+
+
+
 
         			iterator begin() { return iterator(&array[0]); }
         			iterator end() { return iterator(&array[len]); }
@@ -461,272 +522,244 @@ namespace ft {
 
     				};
 
-				template <class S>
-					struct iterator_traits{
-  						typedef typename S::value_type value_type;
-  						typedef typename S::difference_type difference_type;
-  						typedef typename S::iterator_category iterator_category;;
-  						typedef typename S::pointer pointer;
-  						typedef typename S::reference reference;
-					};
 
-				template <class S>
-					struct iterator_traits<S*>
-					{
-    					typedef std::random_access_iterator_tag iterator_category;
-    					typedef S                               value_type;
-    					typedef S*                              pointer;
-    					typedef S&                              reference;
-    					typedef std::ptrdiff_t                  difference_type;
-					};
+					}
 
-				template <class S>
-					struct iterator_traits<const S*>
-					{
-    					typedef std::random_access_iterator_tag iterator_category;
-    					typedef S                               value_type;
-    					typedef S*                              pointer;
-    					typedef S&                              reference;
-    					typedef std::ptrdiff_t                  difference_type;
-					};
+				template <class T, class Alloc>
+					void    ft::vector<T, Alloc>::push_back(const T & val) {
+    					if (this->len < this->siz) {
+    						//    this->array[this->len++] = val;
+        					this->alloc.construct(this->array + this->len++, val);
+    					}
+    					else {
+        					value_type * tmp = this->array;
+        					this->array = this->alloc.allocate(this->siz ? this->siz * 2 : 1);
+        					for (size_type i = 0; i < this->len; i++)
+            					this->array[i] = tmp[i];
+        					if (this->siz > 0)
+            					this->alloc.deallocate(tmp, this->siz);
+        					//this->array[this->siz] = val;
+        					this->alloc.construct(this->array + this->len++, val);
+        					this->siz = this->siz ? this->siz * 2 : 1;
+        					//this->len++;
+    					}
+    					//std::cout << "size of vector is " << this->siz << std::endl;
+					}
 
-		}
+				template <class T, class Alloc>
+					void    ft::vector<T, Alloc>::pop_back() {
+    					this->len--;
+					}
 
-	template <class T, class Alloc>
-		void    ft::vector<T, Alloc>::push_back(const T & val) {
-    		if (this->len < this->siz) {
-    			//    this->array[this->len++] = val;
-        		this->alloc.construct(this->array + this->len++, val);
-    		}
-    		else {
-        		value_type * tmp = this->array;
-        		this->array = this->alloc.allocate(this->siz ? this->siz * 2 : 1);
-        		for (size_type i = 0; i < this->len; i++)
-            		this->array[i] = tmp[i];
-        		if (this->siz > 0)
-            		this->alloc.deallocate(tmp, this->siz);
-        		//this->array[this->siz] = val;
-        		this->alloc.construct(this->array + this->len++, val);
-        		this->siz = this->siz ? this->siz * 2 : 1;
-        		//this->len++;
-    		}
-    		//std::cout << "size of vector is " << this->siz << std::endl;
-		}
+				template <class T, class Alloc>
+					void    ft::vector<T, Alloc>::clear() {
+    					for (size_type i = 0; i < len; i++)
+        					alloc.destroy(&array[i]);
+    					if (siz > 0)
+        					alloc.deallocate(array, siz);
+    					len = 0;
+    					siz = 0;
+					}
 
-	template <class T, class Alloc>
-		void    ft::vector<T, Alloc>::pop_back() {
-    		this->len--;
-		}
+				template <class T, class Alloc>
+    				template <class InputIterator>
+    				void    ft::vector<T, Alloc>::assign (InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last) {
 
-	template <class T, class Alloc>
-		void    ft::vector<T, Alloc>::clear() {
-    		for (size_type i = 0; i < len; i++)
-        		alloc.destroy(&array[i]);
-    		if (siz > 0)
-        		alloc.deallocate(array, siz);
-    		len = 0;
-    		siz = 0;
-		}
+						InputIterator iter = first;
+						size_type n = 0;
 
-	template <class T, class Alloc>
-    	template <class InputIterator>
-    	void    ft::vector<T, Alloc>::assign (InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last) {
+						for (; iter != last; iter++)
+							n++;
 
-			InputIterator iter = first;
-			size_type n = 0;
+        				if (n <= siz) {
+            				for (size_type i = 0; i < n; i++)
+                				alloc.construct(array + i, *first++);
+            				len = n;
+        				}
+        				else {
+            				value_type *tmp = array;
+            				array = alloc.allocate(n);
+            				for (size_type i = 0; i < n; i++)
+                				alloc.construct(array + i, *first++);
+            				for (size_type i = 0; i < len; i++)
+                				alloc.destroy(tmp + i);
+            				if (siz > 0)
+                				alloc.deallocate(tmp, siz);
+            				len = n;
+            				siz = n;
+        				}
+    				}
 
-			for (; iter != last; iter++)
-				n++;
-
-        	if (n <= siz) {
-            	for (size_type i = 0; i < n; i++)
-                	alloc.construct(array + i, *first++);
-            	len = n;
-        	}
-        	else {
-            	value_type *tmp = array;
-            	array = alloc.allocate(n);
-            	for (size_type i = 0; i < n; i++)
-                	alloc.construct(array + i, *first++);
-            	for (size_type i = 0; i < len; i++)
-                	alloc.destroy(tmp + i);
-            	if (siz > 0)
-                	alloc.deallocate(tmp, siz);
-            	len = n;
-            	siz = n;
-        	}
-    	}
-
-	template <class T, class Alloc>
-		void    ft::vector<T, Alloc>::assign (size_type n, const value_type& val) {
-    		if (n <= siz) {
-        		for (size_type i = 0; i < n; i++)
-            		alloc.construct(array + i, val);
-        		len = n;
-    		}
-    		else {
-        		value_type * tmp = array;
-        		array = alloc.allocate(n);
-        		for (size_type i = 0; i < n; i++)
-            		alloc.construct(array + i, val); 
-        		for (size_type i = 0; i < len; i++)
-            		alloc.destroy(tmp + i);
-        		if (siz > 0)
-            		alloc.deallocate(tmp, siz);
-        		len = n;
-        		siz = n;
-    		}
-		}
+				template <class T, class Alloc>
+					void    ft::vector<T, Alloc>::assign (size_type n, const value_type& val) {
+    					if (n <= siz) {
+        					for (size_type i = 0; i < n; i++)
+            					alloc.construct(array + i, val);
+        					len = n;
+    					}
+    					else {
+        					value_type * tmp = array;
+        					array = alloc.allocate(n);
+        					for (size_type i = 0; i < n; i++)
+            					alloc.construct(array + i, val); 
+        					for (size_type i = 0; i < len; i++)
+            					alloc.destroy(tmp + i);
+        					if (siz > 0)
+            					alloc.deallocate(tmp, siz);
+        					len = n;
+        					siz = n;
+    					}
+					}
 
 
-	template <class T, class Alloc> 
-		typename ft::vector<T, Alloc>::iterator   ft::vector<T, Alloc>::insert(iterator position, const value_type& val) {
+				template <class T, class Alloc> 
+					typename ft::vector<T, Alloc>::iterator   ft::vector<T, Alloc>::insert(iterator position, const value_type& val) {
 
-    		return insert(position, 1u, val);;
-		}
+    					return insert(position, 1u, val);;
+					}
 
 
-	template <class T, class Alloc>
-		typename ft::vector<T, Alloc>::iterator        ft::vector<T, Alloc>::insert(iterator position, size_type n, const value_type& val) {
+				template <class T, class Alloc>
+					typename ft::vector<T, Alloc>::iterator        ft::vector<T, Alloc>::insert(iterator position, size_type n, const value_type& val) {
 
-			iterator newpos;
+						iterator newpos;
 
-    		int i;
-    		if (len + n <= siz) {
-        		for (i = len - 1; i >= 0 && &array[i] >= &*position; i--)
-            		array[i + n] = array[i];
-        		i++;
-        		for (size_type j = 0; j < n; j++) {
-            		alloc.construct(array + i + j, val);
-					if (j == 0)
-						newpos = (array + i);
-				}
-        		len += n;
-    		}
-    		else {
-        		value_type * tmp = array;
-        		array = alloc.allocate(siz + n - (siz - len));
-        		for (size_type i = 0; i < len; i++)
-            		array[i] = tmp[i];
-        		for (i = len - 1; i >= 0 && &tmp[i] >= &*position; i--)
-            		array[i + n] = array[i];
-        		i++;
-        		for (size_type j = 0; j < n; j++) {
-            		alloc.construct(array + i + j , val);
-					if (j == 0)
-						newpos = (array + i);
-				}
-        		for (size_type i = 0; i < len; i++)
-            		alloc.destroy(tmp + i);
-        		if (siz > 0)
-            		alloc.deallocate(tmp, siz);
-        		siz += n - (siz - len);
-        		len += n;
-    		}
-			return newpos;
-		}
+    					int i;
+    					if (len + n <= siz) {
+        					for (i = len - 1; i >= 0 && &array[i] >= &*position; i--)
+            					array[i + n] = array[i];
+        					i++;
+        					for (size_type j = 0; j < n; j++) {
+            					alloc.construct(array + i + j, val);
+								if (j == 0)
+									newpos = (array + i);
+							}
+        					len += n;
+    					}
+    					else {
+        					value_type * tmp = array;
+        					array = alloc.allocate(siz + n - (siz - len));
+        					for (size_type i = 0; i < len; i++)
+            					array[i] = tmp[i];
+        					for (i = len - 1; i >= 0 && &tmp[i] >= &*position; i--)
+            					array[i + n] = array[i];
+        					i++;
+        					for (size_type j = 0; j < n; j++) {
+            					alloc.construct(array + i + j , val);
+								if (j == 0)
+									newpos = (array + i);
+							}
+        					for (size_type i = 0; i < len; i++)
+            					alloc.destroy(tmp + i);
+        					if (siz > 0)
+            					alloc.deallocate(tmp, siz);
+        					siz += n - (siz - len);
+        					len += n;
+    					}
+						return newpos;
+					}
 
-	template <class T, class Alloc>
-		template <class InputIterator>
-		void    ft::vector<T, Alloc>::insert(iterator position, InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last) {
+				template <class T, class Alloc>
+					template <class InputIterator>
+					void    ft::vector<T, Alloc>::insert(iterator position, InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last) {
 
-			InputIterator iter = first;
-			size_type n = 0;
+						InputIterator iter = first;
+						size_type n = 0;
 
-			for (; iter != last; iter++)
-				n++;
-			//    		int n = &*last - &*first;
+						for (; iter != last; iter++)
+							n++;
+						//    		int n = &*last - &*first;
 
-    		size_type pos = &*position - &array[0];
-    		for (size_type i = 0; i < n; i++) {
-        		insert(position, 1u, *--last);
-        		position = iterator(&array[pos]); 
-    		}
-		}
+    					size_type pos = &*position - &array[0];
+    					for (size_type i = 0; i < n; i++) {
+        					insert(position, 1u, *--last);
+        					position = iterator(&array[pos]); 
+    					}
+					}
 
-	template <class T, class Alloc>
-		typename ft::vector<T, Alloc>::iterator     ft::vector<T, Alloc>::erase(iterator position) {
+				template <class T, class Alloc>
+					typename ft::vector<T, Alloc>::iterator     ft::vector<T, Alloc>::erase(iterator position) {
 
-    		size_type i = 0;
-    		while (i < len && &array[i] != &*position)
-        		i++;
-    		iterator it = iterator(&array[i]);
-    		for (; i + 1 < len; i++)
-        		array[i] = array[i + 1];
-    		len--;
-    		return it;
-		}
+    					size_type i = 0;
+    					while (i < len && &array[i] != &*position)
+        					i++;
+    					iterator it = iterator(&array[i]);
+    					for (; i + 1 < len; i++)
+        					array[i] = array[i + 1];
+    					len--;
+    					return it;
+					}
 
-	template <class T, class Alloc>
-		typename ft::vector<T, Alloc>::iterator     ft::vector<T, Alloc>::erase(iterator first, iterator last) {
+				template <class T, class Alloc>
+					typename ft::vector<T, Alloc>::iterator     ft::vector<T, Alloc>::erase(iterator first, iterator last) {
 
-    		size_type n = &*last - &*first;
-    		iterator it = first;
-    		for (size_type i = 0; i < n; i++)
-        		it = erase(it);
-    		return it;
+    					size_type n = &*last - &*first;
+    					iterator it = first;
+    					for (size_type i = 0; i < n; i++)
+        					it = erase(it);
+    					return it;
 
-		}
+					}
 
-	template <class T, class Alloc>
-		void        ft::vector<T, Alloc>::swap(vector& x) {
+				template <class T, class Alloc>
+					void        ft::vector<T, Alloc>::swap(vector& x) {
 
-    		vector<T, Alloc> swp = *this;
+    					vector<T, Alloc> swp = *this;
 
-    		*this = x;
-    		x = swp;
-		}
+    					*this = x;
+    					x = swp;
+					}
 
-	template <class T, class Alloc>
-		bool operator== (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
-    		if (lhs.size() != rhs.size())
-        		return false;
-    		for (size_t i = 0; i < lhs.size(); i++)
-        		if (lhs[i] != rhs[i])
-            		return false;
-    		return true;
-		}
+				template <class T, class Alloc>
+					bool operator== (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
+    					if (lhs.size() != rhs.size())
+        					return false;
+    					for (size_t i = 0; i < lhs.size(); i++)
+        					if (lhs[i] != rhs[i])
+            					return false;
+    					return true;
+					}
 
-	template <class T, class Alloc>
-		bool operator!= (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
-    		return !(lhs == rhs);
-		}
+				template <class T, class Alloc>
+					bool operator!= (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
+    					return !(lhs == rhs);
+					}
 
-	template <class T, class Alloc>
-		bool operator<  (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
-    		typename ft::vector<T,Alloc>::const_iterator first1 = lhs.begin();
-    		typename ft::vector<T,Alloc>::const_iterator last1 = lhs.end();
-    		typename ft::vector<T,Alloc>::const_iterator first2 = rhs.begin();
-    		typename ft::vector<T,Alloc>::const_iterator last2= rhs.end();
+				template <class T, class Alloc>
+					bool operator<  (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
+    					typename ft::vector<T,Alloc>::const_iterator first1 = lhs.begin();
+    					typename ft::vector<T,Alloc>::const_iterator last1 = lhs.end();
+    					typename ft::vector<T,Alloc>::const_iterator first2 = rhs.begin();
+    					typename ft::vector<T,Alloc>::const_iterator last2= rhs.end();
 
-    		while (first1!=last1)
-    		{
-        		if (first2==last2 || *first2<*first1) return false;
-        		else if (*first1<*first2) return true;
-        		++first1; ++first2;
-    		}
-    		return (first2!=last2);
+    					while (first1!=last1)
+    					{
+        					if (first2==last2 || *first2<*first1) return false;
+        					else if (*first1<*first2) return true;
+        					++first1; ++first2;
+    					}
+    					return (first2!=last2);
 
-		}
+					}
 
-	template <class T, class Alloc>
-		bool operator<= (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
-    		if (lhs == rhs)
-        		return true;
-    		return lhs < rhs;
-		}
+				template <class T, class Alloc>
+					bool operator<= (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
+    					if (lhs == rhs)
+        					return true;
+    					return lhs < rhs;
+					}
 
-	template <class T, class Alloc>
-		bool operator>  (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
-    		return !(lhs < rhs) && !(lhs == rhs);
-		}
+				template <class T, class Alloc>
+					bool operator>  (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
+    					return !(lhs < rhs) && !(lhs == rhs);
+					}
 
-	template <class T, class Alloc>
-		bool operator>= (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
-    		if (lhs == rhs)
-        		return true;
-    		return lhs > rhs;
-		}
+				template <class T, class Alloc>
+					bool operator>= (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs) {
+    					if (lhs == rhs)
+        					return true;
+    					return lhs > rhs;
+					}
 
 
 #endif 
