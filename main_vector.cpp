@@ -160,7 +160,6 @@ int main() {
 
 	vct.insert(vct.end(), lst.rbegin(), lst.rend());
 	std::cout << vct.size() << std::endl;
-	return (0);
 
 
   	/////////////////     CAPACITY               /////////////////////////////////
