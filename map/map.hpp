@@ -14,11 +14,12 @@ namespace ft {
 		struct Node {
 
 			Node() { dad = NULL; left = NULL; right = NULL; };
-			Node(std::pair<const Key, T> val) {
+			Node(std::pair<const Key, T> val)/* : data(val)*/ {
 
 				dad = NULL;
 				left = NULL;
 				right = NULL;
+
 
 				key = val.first;
 				value = val.second;
@@ -29,8 +30,10 @@ namespace ft {
 			Node		*left;
 			Node		*right;
 
+//			std::pair<Key, T> data;
 			Key			key;
 			T			value;
+
 
 		};
 /*
@@ -148,30 +151,31 @@ namespace ft {
 
 						 //		MODIFIERS
 
-						 void				alloc_node(Node<key_type, mapped_type>* node, const value_type& val) {
+						 std::pair<iterator, bool>		alloc_node(Node<key_type, mapped_type>* node, const value_type& val) {
 						 
-							node = alloc.allocate(sizeof(Node<key_type, mapped_type>));
-							alloc.construct(node, Node<key_type, mapped_type>);
+							node = alloc.allocate(sizeof(Node<key_type, mapped_type>)); // <---- rebind allocator to alloc nodes
+							alloc.construct(node, Node<key_type, mapped_type>(val));
+
+							return std::pair<iterator, bool>();
 						 
 						 }
 
-						 void				recursive_insert(const value_type& val, Node<key_type,
-								 mapped_type>* node,
-								 key_compare map_comp) {
+						 std::pair<iterator, bool>		recursive_insert(const value_type& val, Node<key_type,
+								 mapped_type>* node, key_compare map_comp) {
 
 							 if (node == NULL)
-								 alloc_node(node, val);
-							 else if (map_comp(val.first, val.second))
-									 recursive_insert(val, node->left, map_comp);
+								 return alloc_node(node, val);
+							 else if (map_comp(val.first, node->key))
+									 return recursive_insert(val, node->left, map_comp);
 							else
-									 recursive_insert(val, node->right, map_comp);
+									 return recursive_insert(val, node->right, map_comp);
 
 						}
 
-						 std::pair<iterator,bool> insert (const value_type& val) {
+						 std::pair<iterator,bool>		insert (const value_type& val) {
 							 
 							 key_compare	map_comp = key_comp();
-							 recursive_insert(val, root, key_comp());
+							 return recursive_insert(val, root, key_comp());
 						}
 
 							
