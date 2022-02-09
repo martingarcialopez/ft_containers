@@ -12,29 +12,33 @@ struct enable_if {};
 
 template<class T>
 struct enable_if<true, T> { typedef T type; };
-/*
-   template<typename> struct is_integral_base: std::false_type {};
-   template<> struct is_integral_base<bool>: std::true_type {};
-   template<> struct is_integral_base<const bool>: std::true_type {};
-   template<> struct is_integral_base<int>: std::true_type {};
-   template<> struct is_integral_base<const int>: std::true_type {};
-   template<> struct is_integral_base<short>: std::true_type {};
-   template<> struct is_integral_base<const short>: std::true_type {};
-   template<> struct is_integral_base<char>: std::true_type {};
-   template<> struct is_integral_base<const char>: std::true_type {};
-   template<> struct is_integral_base<char16_t>: std::true_type {};
-   template<> struct is_integral_base<const char16_t>: std::true_type {};
-   template<> struct is_integral_base<char32_t>: std::true_type {};
-   template<> struct is_integral_base<const char32_t>: std::true_type {};
-   template<> struct is_integral_base<wchar_t>: std::true_type {};
-   template<> struct is_integral_base<const wchar_t>: std::true_type {};
-   template<> struct is_integral_base<long>: std::true_type {};
-   template<> struct is_integral_base<const long>: std::true_type {};
-   template<> struct is_integral_base<long long>: std::true_type {};
-   template<> struct is_integral_base<const long long>: std::true_type {};
-   template<typename T> struct is_integral: is_integral_base<T> {};
- */
 
+template <class T, T v>
+struct integral_constant {
+  	static const T	value = v;
+  	typedef T			value_type;
+  	typedef integral_constant<T,v> type;
+};
+
+typedef integral_constant<bool, true> true_type;
+typedef integral_constant<bool, false> false_type;
+
+template<typename> struct is_integral_base: false_type {};
+template<> struct is_integral_base<bool>: true_type {};
+template<> struct is_integral_base<const bool>: true_type {};
+template<> struct is_integral_base<int>: true_type {};
+template<> struct is_integral_base<const int>: true_type {};
+template<> struct is_integral_base<short>: true_type {};
+template<> struct is_integral_base<const short>: true_type {};
+template<> struct is_integral_base<char>: true_type {};
+template<> struct is_integral_base<const char>: true_type {};
+template<> struct is_integral_base<wchar_t>: true_type {};
+template<> struct is_integral_base<const wchar_t>: true_type {};
+template<> struct is_integral_base<long>: true_type {};
+template<> struct is_integral_base<const long>: true_type {};
+template<> struct is_integral_base<long long>: true_type {};
+template<> struct is_integral_base<const long long>: true_type {};
+template<typename T> struct is_integral: is_integral_base<T> {};
 
 namespace ft {
 
@@ -54,7 +58,7 @@ namespace ft {
         		typedef size_t										size_type;
 
 				typedef v_iterator<value_type>						iterator;
-				typedef v_iterator<const value_type>					const_iterator;
+				typedef v_iterator<const value_type>				const_iterator;
 				typedef ft::reverse_iterator<iterator>				reverse_iterator;
 				typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
 
@@ -81,18 +85,10 @@ namespace ft {
             		len = n;
             		siz = n;
         		}
+
+
         		template <class InputIterator>
-					vector (InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last,
-							const allocator_type& alloc = allocator_type()) {
-						//vector (InputIterator first, typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type last,
-                    	//  		const allocator_type& alloc = allocator_type()) {
-						//            vector (InputIterator first, typename enable_if<std::is_same<InputIterator, ft::iterator>::value, InputIterator(),
-						//                    const allocator_type& alloc = allocator_type()) {
-						/*                len = &(*last) - &(*first); 
-										  std::cout << "&(*last)  = " << &(*last) << std::endl;
-										  std::cout << "&(*first) = " << &(*first) << std::endl;
-										  std::cout << "len (&(*last) - &(*first) = " << len << std::endl;
-                						  siz = len;*/
+					vector (InputIterator first, typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type last, const allocator_type& alloc = allocator_type()) {
 						InputIterator iter = first;
 						len = 0;
 
@@ -327,7 +323,7 @@ namespace ft {
 
 
 
-        			iterator begin() { return iterator(&array[0]); }
+        				iterator begin() { return iterator(&array[0]); }
         			iterator end() { return iterator(&array[len]); }
 
         			const_iterator begin() const { return const_iterator(&array[0]); }
@@ -403,12 +399,12 @@ namespace ft {
         			void        push_back(const value_type& val);
         			void        pop_back();
         			template    <class InputIterator>
-            			void    assign (InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last);
+            		void   		assign (InputIterator first, typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type last);
         			void        assign (size_type n, const value_type& val);
         			iterator    insert (iterator position, const value_type& val);
         			iterator	insert (iterator position, size_type n, const value_type& val);
         			template <class InputIterator>
-            			void    insert (iterator position, InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last);
+            		void		insert (iterator position, typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type last, InputIterator first);
         			iterator    erase (iterator position);
         			iterator    erase (iterator first, iterator last);
         			void        swap (vector& x);
@@ -461,7 +457,7 @@ namespace ft {
 
 				template <class T, class Alloc>
     				template <class InputIterator>
-    				void    ft::vector<T, Alloc>::assign (InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last) {
+    				void    ft::vector<T, Alloc>::assign (InputIterator first, typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type last) {
 
 						InputIterator iter = first;
 						size_type n = 0;
@@ -559,7 +555,7 @@ namespace ft {
 
 				template <class T, class Alloc>
 					template <class InputIterator>
-					void    ft::vector<T, Alloc>::insert(iterator position, InputIterator first, typename enable_if<!std::numeric_limits<InputIterator>::is_integer, InputIterator>::type last) {
+					void    ft::vector<T, Alloc>::insert(iterator position, typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last) {
 
 						InputIterator iter = first;
 						size_type n = 0;
