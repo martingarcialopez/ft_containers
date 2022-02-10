@@ -1,35 +1,68 @@
 #ifndef NODE_HPP
 # define NODE_HPP
 
-template<typename Key, typename T>
+template<typename T>
 class Node {
 
 	public:
 
-		Node() { dad = NULL; left = NULL; right = NULL; };
-		Node(std::pair<const Key, T> val)/* : data(val)*/ {
-
-			dad = NULL;
-			left = NULL;
-			right = NULL;
-
-			key = val.first;
-			value = val.second;
-
-		}
-		~Node() {};
+		Node() : dad(NULL), left(NULL), right(NULL) {}
+		Node(T val) : data(val), dad(NULL), left(NULL), right(NULL) {}
+		Node(T val, Node<T>* parent) : data(val), dad(parent), left(NULL), right(NULL) {}
+		~Node() {}
 
 		Node		*dad;
 		Node		*left;
 		Node		*right;
 
-		//			std::pair<Key, T> data;
-		Key			key;
-		T			value;
-
-
+		T			data;
 };
 
+template<typename T>
+Node<T>*	leftmost_node(Node<T>* node) {
 
 
+	Node<T>*	current = node;
+
+	while (current && current->left)
+		current = current->left;
+
+	return current;
+
+}
+
+template<typename T>
+Node<T>*	rightmost_node(Node<T> *node) {
+
+
+	Node<T>*	current = node;
+
+	while (current && current->right)
+		current = current->right;
+
+	return current;
+
+}
+
+template<typename T>
+Node<T>*	next_node(Node<T>* node) {
+
+	if (node->right != NULL)
+		return leftmost_node(node->right);
+
+	Node<T>* parent = node->dad;	
+	if (parent == NULL)
+		return NULL;
+
+	if (node == parent->left)
+		return parent;
+
+	while (parent != NULL && node != parent->left) {
+		node = parent;
+		parent = node->dad;
+	}
+	if (parent != NULL)
+		return parent;
+	return rightmost_node(node)->right;
+}
 #endif

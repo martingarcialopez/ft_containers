@@ -34,28 +34,28 @@ void	print_tree_inorder(t_node<Key, T> *node) {
 }
 
 
-template<typename Key, typename T>
-void printBT(const std::string& prefix, const Node<Key, T> *node, bool isLeft)
+	template<typename T>
+void printBT(const std::string& prefix, const Node<T> *node, bool isLeft)
 {
-    if( node != nullptr )
-    {
-        std::cout << prefix;
+	if( node != nullptr )
+	{
+		std::cout << prefix;
 
-        std::cout << (isLeft ? "├──" : "└──" );
+		std::cout << (isLeft ? "├──" : "└──" );
 
-        // print the value of the node
-        std::cout << node->key << std::endl;
+		// print the value of the node
+		std::cout << node->data.first << std::endl;
 
-        // enter the next tree level - left and right branch
-        printBT( prefix + (isLeft ? "│   " : "    "), node->left, true);
-        printBT( prefix + (isLeft ? "│   " : "    "), node->right, false);
-    }
+		// enter the next tree level - left and right branch
+		printBT( prefix + (isLeft ? "│   " : "    "), node->left, true);
+		printBT( prefix + (isLeft ? "│   " : "    "), node->right, false);
+	}
 }
 
-template<typename Key, typename T>
-void printBT(const Node<Key,T> *node)
+	template<typename T>
+void printBT(const Node<T> *node)
 {
-    printBT("", node, false);    
+	printBT("", node, false);    
 }
 
 int main(int ac, char **av) {
@@ -104,42 +104,52 @@ int main(int ac, char **av) {
 		root.right = NULL;*/
 
 
-//		mymap.insert ( std::pair<int, std::string>(3, "ayayayayaya") );
-		mymap.insert ( std::pair<int, std::string>(6, "fssschhchwhoaahaa") );
-		mymap.insert ( std::pair<int, std::string>(2, "pim pam pum") );
-		mymap.insert ( std::pair<int, std::string>(1, "hello hello") );
-		mymap.insert ( std::pair<int, std::string>(4, "eee macarena") );
-		mymap.insert ( std::pair<int, std::string>(5, "oink oink oink") );
-		mymap.insert ( std::pair<int, std::string>(8, "ei t") );
-		mymap.insert ( std::pair<int, std::string>(7, "Sven el vikingo") );
+	//		mymap.insert ( std::pair<int, std::string>(3, "ayayayayaya") );
+	mymap.insert ( std::pair<int, std::string>(6, "fssschhchwhoaahaa") );
+	mymap.insert ( std::pair<int, std::string>(2, "pim pam pum") );
+	mymap.insert ( std::pair<int, std::string>(1, "hello hello") );
+	mymap.insert ( std::pair<int, std::string>(4, "eee macarena") );
+	mymap.insert ( std::pair<int, std::string>(5, "oink oink oink") );
+	mymap.insert ( std::pair<int, std::string>(8, "ei t") );
+	mymap.insert ( std::pair<int, std::string>(7, "Sven el vikingo") );
 
-/*
+	/*
 
-	if (mymap.root) {
-		std::cout << "map root key is " << mymap.root->key << std::endl;
-		std::cout << "map root value is " << mymap.root->value << std::endl;
-	} else {
-		std::cout << "map root is NULL" << std::endl;
+	   if (mymap.root) {
+	   std::cout << "map root key is " << mymap.root->key << std::endl;
+	   std::cout << "map root value is " << mymap.root->value << std::endl;
+	   } else {
+	   std::cout << "map root is NULL" << std::endl;
+	   }
+	   */
+	mymap.print_tree_inorder(mymap.root);
+	printBT(mymap.root);
+	/*
+	   std::cout << std::endl << std::endl;
+
+	   if (av[1])
+	   mymap.erase(atoi(av[1]));
+	   else
+	   mymap.erase(5);
+	   mymap.print_tree_inorder(mymap.root);
+	   printBT(mymap.root);
+	   */
+	ft::map<int, std::string>::iterator it = mymap.begin();
+
+	for (; it != mymap.end() ; ++it) {
+	  std::cout << it->first << "  " << it->second << std::endl;
+
+	  }
+
+
+/*	ft::map<int, std::string>::node_pointer n(mymap.root);
+
+	while (n != NULL) {
+		n = next_node(n);
+		std::cout << n->data.first << std::endl;
 	}
+
 */
-	mymap.print_tree_inorder(mymap.root);
-	printBT(mymap.root);
-/*
-	std::cout << std::endl << std::endl;
-
-	if (av[1])
-		mymap.erase(atoi(av[1]));
-	else
-		mymap.erase(5);
-	mymap.print_tree_inorder(mymap.root);
-	printBT(mymap.root);
-*/
-	ft::map::iterator it = mymap.begin();
-
-
-	for (; it != NULL; ++it)
-		std::cout << *it << std::endl;
-
 	return 0;
 
 }
