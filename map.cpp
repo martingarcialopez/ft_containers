@@ -138,6 +138,15 @@ int main(int ac, char **av) {
 	   */
 	ft::map<int, std::string>::iterator it = mymap.begin();
 
+	std::cout << "root dad is " << mymap.root->dad << std::endl;
+	std::cout << "root dad first is " << mymap.root->dad->data.first << std::endl;
+	std::cout << "sentinel left is " << mymap.root->dad->left->data.first << std::endl;
+	ft::map<int, std::string>::iterator it4(rightmost_node(mymap.root));
+	std::cout << "rightmost_node is " << it4->first << std::endl;
+	++it4;
+	std::cout << "next it is " << it4->first << std::endl;
+
+
 	for (; it != mymap.end() ; ++it) {
 	  std::cout << it->first << "  " << it->second << std::endl;
 	  std::cout << "holiiii" << std::endl;
@@ -177,11 +186,13 @@ int main(int ac, char **av) {
 
 	std::map<int, std::string>	map2;
 	std::map<int, std::string>::iterator it3 = map2.lower_bound(2);
-	std::cout << "it points to " << it3->first << std::endl;
+	if (it3 != map2.end())
+		std::cout << "it points to " << it3->first << std::endl;
 
 
 	ft::map<int, std::string>::iterator it2 = mymap.lower_bound(2);
-	std::cout << "it points to " << it2->first << std::endl;
+	if (it2 != mymap.end())
+		std::cout << "it points to " << it2->first << std::endl;
 
 	return 0;
 

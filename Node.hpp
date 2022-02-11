@@ -75,6 +75,11 @@ Node<T>*	next_node(Node<T>* node) {
 	}
 	if (parent != NULL)
 		return parent;
-	return rightmost_node(node)->right;
+//	return rightmost_node(node)->right;
+//
+
+	std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH" << std::endl;
+	return parent;
 }
+
 #endif

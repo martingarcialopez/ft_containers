@@ -72,6 +72,7 @@ namespace ft {
 				node_allocator		node_alloc;
 				key_compare			comp;
 				node_pointer		root;
+				node_pointer		sentinel;
 				size_type			siz;
 
 
@@ -79,7 +80,13 @@ namespace ft {
 
 				//		MEMBER FUNCTIONS
 				explicit map (const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
-					: root(NULL), siz(0) {};
+					: root(NULL), siz(0) {
+					
+						alloc_node(sentinel, NULL, value_type(key_type(), mapped_type())); 
+						std::cout << "sentinel->first: " << sentinel->data.first << std::endl;
+						std::cout << "sentinel->second: " << sentinel->data.second << std::endl;
+					
+					};
 
 
 				template <class InputIterator>
@@ -120,14 +127,14 @@ namespace ft {
 				iterator begin() { return iterator(leftmost_node(root)); }
 //				const_iterator begin() const { return const_iterator(leftmost_node(root)); }
 
-				iterator end() { return iterator(rightmost_node(root)->right); }
-				const_iterator end() const { return const_iterator(rightmost_node(root)->right); }
+				iterator end() { return iterator(sentinel); }
+				const_iterator end() const { return const_iterator(sentinel); }
 
 				reverse_iterator rbegin() { return  reverse_iterator(rightmost_node(root)->right); }
-				const_reverse_iterator rbegin() const { const_reverse_iterator(rightmost_node(root)->right); }
+				const_reverse_iterator rbegin() const { return const_reverse_iterator(sentinel); }
 
 				reverse_iterator rend() { reverse_iterator(leftmost_node(root)); }
-				const_reverse_iterator rend() const { const_reverse_iterator(leftmost_node(root)); }
+				const_reverse_iterator rend() const { return const_reverse_iterator(leftmost_node(root)); }
 
 
 
@@ -169,10 +176,13 @@ namespace ft {
 
 				//		MODIFIERS
 
-				ft::pair<iterator, bool>		alloc_node(node_pointer &node, node_pointer parent, const value_type& val) {
+				ft::pair<iterator, bool>		alloc_node(node_pointer &node, node_pointer &parent, const value_type& val) {
 
 					node = node_alloc.allocate(1); // <---- rebind allocator to alloc nodes
 					node_alloc.construct(node, Node<value_type>(val, parent));
+
+					if (siz == 0 && parent)
+						parent->left = node;
 
 					siz += 1;
 
@@ -180,7 +190,7 @@ namespace ft {
 
 				}
 
-				ft::pair<iterator, bool>		insert_node(const value_type& val, node_pointer &node, node_pointer parent, key_compare map_comp) {
+				ft::pair<iterator, bool>		insert_node(const value_type& val, node_pointer &node, node_pointer &parent, key_compare map_comp) {
 					if (node == NULL)
 						return alloc_node(node, parent, val);
 					else if (map_comp(val.first, node->data.first))
@@ -195,7 +205,7 @@ namespace ft {
 				ft::pair<iterator,bool>		insert (const value_type& val) {
 
 					key_compare	map_comp = key_comp();
-					return insert_node(val, root, NULL, key_comp());
+					return insert_node(val, root, sentinel, key_comp());
 				}
 
 
