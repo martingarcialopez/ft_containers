@@ -355,23 +355,27 @@ namespace ft {
 
 				iterator lower_bound (const key_type& k) {
 
-					std::cout << "YOOO" << std::endl;
-
 					key_compare cmp = key_comp();
-					node_pointer	pim = leftmost_node(root);
-					node_pointer    r2d2 = this->root;
-					std::cout << "mira que guay soy : " << pim->data.first << std::endl;
-					iterator it = iterator(leftmost_node(root));
+					iterator it = begin();
 
-					std::cout << "begin it value is " << it->first << std::endl;
-
-					for (; cmp(it->first, k) && it != end() ; ++it) { ; }
+					for (; it != end() && cmp(it->first, k); ++it) { ; }
 
 					return it;
 				}
-				const_iterator lower_bound (const key_type& k) const;
 
-				iterator upper_bound (const key_type& k);
+				const_iterator lower_bound (const key_type& k) const {
+
+					key_compare cmp = key_comp();
+					const_iterator cit = begin();
+
+					for (; cit != end() && cmp(cit->first, k); ++cit) { ; }
+
+					return cit;
+				}
+
+				iterator upper_bound (const key_type& k) {
+				
+				}
 				const_iterator upper_bound (const key_type& k) const;
 
 				pair<const_iterator,const_iterator> equal_range (const key_type& k) const;

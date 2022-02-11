@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <map>
 #include "map.hpp"
 
 template<typename Key, typename T>
@@ -166,11 +167,18 @@ int main(int ac, char **av) {
 	printBT(mymap.root);
 
 	std::cout << "map max_size is " << mymap.max_size() << std::endl;
-/*
+
 	std::cout << "mymap.clear()" << std::endl;
 	mymap.clear();
-	std::cout << "map size is " << mymap.size() << std::endl;*/
+	std::cout << "map size is " << mymap.size() << std::endl;
 	printBT(mymap.root);
+
+	std::cout << "real map" << std::endl;
+
+	std::map<int, std::string>	map2;
+	std::map<int, std::string>::iterator it3 = map2.lower_bound(2);
+	std::cout << "it points to " << it3->first << std::endl;
+
 
 	ft::map<int, std::string>::iterator it2 = mymap.lower_bound(2);
 	std::cout << "it points to " << it2->first << std::endl;
