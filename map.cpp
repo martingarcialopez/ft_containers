@@ -104,14 +104,16 @@ int main(int ac, char **av) {
 		root.right = NULL;*/
 
 
-	//		mymap.insert ( std::pair<int, std::string>(3, "ayayayayaya") );
-	mymap.insert ( std::pair<int, std::string>(6, "fssschhchwhoaahaa") );
-	mymap.insert ( std::pair<int, std::string>(2, "pim pam pum") );
-	mymap.insert ( std::pair<int, std::string>(1, "hello hello") );
-	mymap.insert ( std::pair<int, std::string>(4, "eee macarena") );
-	mymap.insert ( std::pair<int, std::string>(5, "oink oink oink") );
-	mymap.insert ( std::pair<int, std::string>(8, "ei t") );
-	mymap.insert ( std::pair<int, std::string>(7, "Sven el vikingo") );
+	//		mymap.insert ( ft::pair<int, std::string>(3, "ayayayayaya") );
+	mymap.insert ( ft::pair<int, std::string>(6, "fssschhchwhoaahaa") );
+	mymap.insert ( ft::pair<int, std::string>(2, "pim pam pum") );
+	mymap.insert ( ft::pair<int, std::string>(1, "hello hello") );
+	mymap.insert ( ft::pair<int, std::string>(4, "eee macarena") );
+	mymap.insert ( ft::pair<int, std::string>(5, "oink oink oink") );
+	mymap.insert ( ft::pair<int, std::string>(8, "ei t") );
+	mymap.insert ( ft::pair<int, std::string>(7, "Sven el vikingo") );
+	mymap.insert ( ft::pair<int, std::string>(7, "SVEN HA MUERTO") );
+	
 
 	/*
 
@@ -122,7 +124,6 @@ int main(int ac, char **av) {
 	   std::cout << "map root is NULL" << std::endl;
 	   }
 	   */
-	mymap.print_tree_inorder(mymap.root);
 	printBT(mymap.root);
 	/*
 	   std::cout << std::endl << std::endl;
@@ -138,8 +139,14 @@ int main(int ac, char **av) {
 
 	for (; it != mymap.end() ; ++it) {
 	  std::cout << it->first << "  " << it->second << std::endl;
+	  std::cout << "holiiii" << std::endl;
 
 	  }
+
+	std::cout << "mymap[8] is " << mymap[8]  << std::endl;
+	std::cout << "despues de mymap[8] = BRUUUUM BRUUUUUUM" << std::endl;
+	mymap[8] = "BRUUUUUM BRUUUUUUM";
+	std::cout << "mymap[8] is " << mymap[8]  << std::endl;
 
 
 /*	ft::map<int, std::string>::node_pointer n(mymap.root);
@@ -150,6 +157,24 @@ int main(int ac, char **av) {
 	}
 
 */
+	std::cout << "map size is " << mymap.size() << std::endl;
+
+	mymap.erase(5);
+	std::cout << "erase 5" << std::endl;
+
+	std::cout << "map size is " << mymap.size() << std::endl;
+	printBT(mymap.root);
+
+	std::cout << "map max_size is " << mymap.max_size() << std::endl;
+/*
+	std::cout << "mymap.clear()" << std::endl;
+	mymap.clear();
+	std::cout << "map size is " << mymap.size() << std::endl;*/
+	printBT(mymap.root);
+
+	ft::map<int, std::string>::iterator it2 = mymap.lower_bound(2);
+	std::cout << "it points to " << it2->first << std::endl;
+
 	return 0;
 
 }

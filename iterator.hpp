@@ -100,16 +100,19 @@ namespace ft {
 
 				Node<T>*	_current;
 
-			private:
-
 
 			public:
 
 				m_iterator() {}
 				m_iterator(Node<T>* ptr) : _current(ptr) {}
-				m_iterator(const T& ref) : _current(ref) {}
-				//operator m_iterator<const T> () const { return (m_iterator<const Key, const T>(this->_current)); }
+				//   KK			m_iterator(const T& ref) : _current(ref) {}
+								operator m_iterator<const T> () const { return (m_iterator<const T>(this->_current)); }
+								m_iterator& operator=(m_iterator const &rhs) {
+								this->_curent= rhs._current;
+								return (*this);
 
+								}
+								
 				reference operator*() const { return _current->data; }
 				pointer operator->() const { return &(_current->data); }
 				//				reference operator[](size_t n) const { return *(_ptr + n); }
@@ -136,6 +139,11 @@ namespace ft {
 
 				friend bool operator!=(const m_iterator<T>& a, const m_iterator<T>& b) {  return a._current != b._current; }
 
+				template <class, class, class, class>
+					friend class map;
+
+				template <class>
+					friend class m_iterator;
 
 		};
 

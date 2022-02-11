@@ -10,6 +10,18 @@ class Node {
 		Node(T val) : data(val), dad(NULL), left(NULL), right(NULL) {}
 		Node(T val, Node<T>* parent) : data(val), dad(parent), left(NULL), right(NULL) {}
 		~Node() {}
+/*
+		Node(Node<T>& node) {
+		
+			this->dad = node.dad;
+			this->left = node.left;
+			this->right = node.right;
+			this->data = node.data;
+		
+		}
+  				^ DA ERROR /!\ ^  */
+
+		//		operator Node<const T> () const { return Node<const T>(*this); }
 
 		Node		*dad;
 		Node		*left;
