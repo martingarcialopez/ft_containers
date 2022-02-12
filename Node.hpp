@@ -7,8 +7,8 @@ class Node {
 	public:
 
 		Node() : dad(NULL), left(NULL), right(NULL) {}
-		Node(T val) : data(val), dad(NULL), left(NULL), right(NULL) {}
-		Node(T val, Node<T>* parent) : data(val), dad(parent), left(NULL), right(NULL) {}
+		Node(T val) : dad(NULL), left(NULL), right(NULL), data(val) {}
+		Node(T val, Node<T>* parent) : dad(parent), left(NULL), right(NULL), data(val) {}
 		~Node() {}
 /*
 		Node(Node<T>& node) {
@@ -21,7 +21,7 @@ class Node {
 		}
   				^ DA ERROR /!\ ^  */
 
-		//		operator Node<const T> () const { return Node<const T>(*this); }
+		operator Node<const T> () const { return Node<const T>(*this); }
 
 		Node		*dad;
 		Node		*left;
@@ -31,33 +31,42 @@ class Node {
 };
 
 template<typename T>
-Node<T>*	leftmost_node(Node<T>* node) {
+Node<T>*	leftmost_node_address(Node<T>* &node) {
 
-
-	Node<T>*	current = node;
-
-	while (current && current->left)
-		current = current->left;
-
-	return current;
-
+	while (node && node->left)
+		node = node->left;
+	return node;
 }
 
 template<typename T>
-Node<T>*	rightmost_node(Node<T> *node) {
+Node<T>*	rightmost_node_address(Node<T>* &node) {
 
+	while (node && node->right)
+		node = node->right;
+	return node;
+}
 
-	Node<T>*	current = node;
+template<typename T>
+Node<T>*	leftmost_node(Node<T>* node) {
 
-	while (current && current->right)
-		current = current->right;
+	while (node && node->left)
+		node = node->left;
+	return node;
+}
 
-	return current;
+template<typename T>
+Node<T>*	rightmost_node(Node<T>* node) {
 
+	while (node && node->right)
+		node = node->right;
+	return node;
 }
 
 template<typename T>
 Node<T>*	next_node(Node<T>* node) {
+
+	if (!node)
+		return node;
 
 	if (node->right != NULL)
 		return leftmost_node(node->right);
@@ -73,12 +82,29 @@ Node<T>*	next_node(Node<T>* node) {
 		node = parent;
 		parent = node->dad;
 	}
-	if (parent != NULL)
-		return parent;
-//	return rightmost_node(node)->right;
-//
+	return parent;
+}
 
-	std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH" << std::endl;
+template<typename T>
+Node<T>*	prev_node(Node<T>* node) {
+
+	if (!node)
+		return node;
+
+	if (node->left != NULL)
+		return rightmost_node(node->left);
+
+	Node<T>* parent = node->dad;	
+	if (parent == NULL)
+		return NULL;
+
+	if (node == parent->right)
+		return parent;
+
+	while (parent != NULL && node != parent->right) {
+		node = parent;
+		parent = node->dad;
+	}
 	return parent;
 }
 

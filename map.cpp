@@ -141,58 +141,20 @@ int main(int ac, char **av) {
 	std::cout << "root dad is " << mymap.root->dad << std::endl;
 	std::cout << "root dad first is " << mymap.root->dad->data.first << std::endl;
 	std::cout << "sentinel left is " << mymap.root->dad->left->data.first << std::endl;
-	ft::map<int, std::string>::iterator it4(rightmost_node(mymap.root));
-	std::cout << "rightmost_node is " << it4->first << std::endl;
-	++it4;
-	std::cout << "next it is " << it4->first << std::endl;
-
-
-	for (; it != mymap.end() ; ++it) {
-	  std::cout << it->first << "  " << it->second << std::endl;
-	  std::cout << "holiiii" << std::endl;
-
-	  }
 
 	std::cout << "mymap[8] is " << mymap[8]  << std::endl;
 	std::cout << "despues de mymap[8] = BRUUUUM BRUUUUUUM" << std::endl;
 	mymap[8] = "BRUUUUUM BRUUUUUUM";
 	std::cout << "mymap[8] is " << mymap[8]  << std::endl;
 
+	
+	ft::map<int, std::string>::iterator it2;
 
-/*	ft::map<int, std::string>::node_pointer n(mymap.root);
+	it2 = mymap.find(5);
 
-	while (n != NULL) {
-		n = next_node(n);
-		std::cout << n->data.first << std::endl;
-	}
-
-*/
-	std::cout << "map size is " << mymap.size() << std::endl;
-
-	mymap.erase(5);
-	std::cout << "erase 5" << std::endl;
-
-	std::cout << "map size is " << mymap.size() << std::endl;
+	std::cout << "elem 5 is " << it2->first << " with value " << it2->second << std::endl;
+	for (; it2 != mymap.end(); ++ it2) { ; }
 	printBT(mymap.root);
-
-	std::cout << "map max_size is " << mymap.max_size() << std::endl;
-
-	std::cout << "mymap.clear()" << std::endl;
-	mymap.clear();
-	std::cout << "map size is " << mymap.size() << std::endl;
-	printBT(mymap.root);
-
-	std::cout << "real map" << std::endl;
-
-	std::map<int, std::string>	map2;
-	std::map<int, std::string>::iterator it3 = map2.lower_bound(2);
-	if (it3 != map2.end())
-		std::cout << "it points to " << it3->first << std::endl;
-
-
-	ft::map<int, std::string>::iterator it2 = mymap.lower_bound(2);
-	if (it2 != mymap.end())
-		std::cout << "it points to " << it2->first << std::endl;
 
 	return 0;
 

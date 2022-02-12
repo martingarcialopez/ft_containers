@@ -37,7 +37,7 @@ namespace ft {
 				typedef size_t										size_type;
 
 				typedef m_iterator<value_type>						iterator;
-				typedef m_iterator<const value_type>				const_iterator;
+				typedef m_iterator<value_type>				const_iterator;
 				typedef ft::reverse_iterator<iterator>				reverse_iterator;
 				typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
 
@@ -79,12 +79,18 @@ namespace ft {
 			public:
 
 				//		MEMBER FUNCTIONS
-				explicit map (const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
-					: root(NULL), siz(0) {
+				explicit map (const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) : root(NULL), siz(0) {
 					
-						alloc_node(sentinel, NULL, value_type(key_type(), mapped_type())); 
+//						alloc_node(sentinel, root, value_type(key_type(), mapped_type())); 
+
+						this->alloc = alloc;
+						this->comp = comp;
+
+						sentinel = node_alloc.allocate(1);
+						node_alloc.construct(sentinel, Node<value_type>(value_type(key_type(), mapped_type()), NULL));
 						std::cout << "sentinel->first: " << sentinel->data.first << std::endl;
 						std::cout << "sentinel->second: " << sentinel->data.second << std::endl;
+						std::cout << "sentinel->left == " << sentinel->left << std::endl;
 					
 					};
 
@@ -92,10 +98,12 @@ namespace ft {
 				template <class InputIterator>
 					map (InputIterator first, InputIterator last,
 							const key_compare& comp = key_compare(),
-							const allocator_type& alloc = allocator_type()) : root(NULL), siz(0) {
+							const allocator_type& alloc = allocator_type()) : root(NULL), siz(0) { 
 
-						// TO DO TO DO TO DO TO DO TO DO
-
+						this->alloc = alloc;
+						this->comp = comp;
+						insert(first, last);
+					
 					}
 
 
@@ -124,17 +132,17 @@ namespace ft {
 
 
 				//		ITERATORS
-				iterator begin() { return iterator(leftmost_node(root)); }
-//				const_iterator begin() const { return const_iterator(leftmost_node(root)); }
+				iterator begin() { return iterator(leftmost_node(sentinel)); }
+				const_iterator begin() const { return const_iterator(leftmost_node(sentinel)); }
 
 				iterator end() { return iterator(sentinel); }
-				const_iterator end() const { return const_iterator(sentinel); }
+				const_iterator end() const { return sentinel; }
 
 				reverse_iterator rbegin() { return  reverse_iterator(rightmost_node(root)->right); }
 				const_reverse_iterator rbegin() const { return const_reverse_iterator(sentinel); }
 
-				reverse_iterator rend() { reverse_iterator(leftmost_node(root)); }
-				const_reverse_iterator rend() const { return const_reverse_iterator(leftmost_node(root)); }
+				reverse_iterator rend() { reverse_iterator(leftmost_node(sentinel)); }
+				const_reverse_iterator rend() const { return const_reverse_iterator(leftmost_node(sentinel)); }
 
 
 
@@ -145,8 +153,8 @@ namespace ft {
 				size_type size() const {
 
 					return siz;
-											
-/*											const_iterator	it = begin();
+										/*	
+											iterator	it = begin();
 											size_type	count = 0;
 
 											for (; it != end(); ++it)
@@ -163,7 +171,7 @@ namespace ft {
 				//		OBSERVERS
 
 				key_compare key_comp() const { return key_compare(comp); }
-				value_compare value_comp() const { return value_compare(); }
+				value_compare value_comp() const { return value_compare(comp); }
 
 
 
@@ -181,7 +189,7 @@ namespace ft {
 					node = node_alloc.allocate(1); // <---- rebind allocator to alloc nodes
 					node_alloc.construct(node, Node<value_type>(val, parent));
 
-					if (siz == 0 && parent)
+					if (!siz)
 						parent->left = node;
 
 					siz += 1;
@@ -204,7 +212,6 @@ namespace ft {
 
 				ft::pair<iterator,bool>		insert (const value_type& val) {
 
-					key_compare	map_comp = key_comp();
 					return insert_node(val, root, sentinel, key_comp());
 				}
 
@@ -213,6 +220,8 @@ namespace ft {
 
 
 				iterator insert (iterator position, const value_type& val) {
+
+					(void)position;
 
 					key_compare	map_comp = key_comp();
 					return insert_node(val, root, NULL, key_comp());
@@ -347,20 +356,38 @@ namespace ft {
 				}
 
 
-
-
-
-
 				//		OPERATIONS
+				
+				iterator find_node(const key_type& k, node_pointer node, key_compare cmp) const {
+				
+					if (node == NULL)
+						return end();
+					else if (k == node->data.first) {
+						std::cout << "K is " << k << " n->d.first " << node->data.first << std::endl;
+						return iterator(node);
+
+					}
+					else if (cmp(k, node->data.first))
+						return find_node(k, node->left, cmp);
+					else
+						return find_node(k, node->right, cmp);
+				
+				}
 
 				iterator find (const key_type& k) {
 
-
-
+					return find_node(k, root, key_comp());
 				}
-				const_iterator find (const key_type& k) const;
 
-				size_type count (const key_type& k) const;
+				const_iterator find (const key_type& k) const {
+
+					return find_node(k, root, key_comp());
+				}
+
+				size_type count (const key_type& k) const {
+
+					return find(k) != end();
+				}
 
 
 				iterator lower_bound (const key_type& k) {
@@ -384,12 +411,53 @@ namespace ft {
 				}
 
 				iterator upper_bound (const key_type& k) {
-				
-				}
-				const_iterator upper_bound (const key_type& k) const;
 
-				pair<const_iterator,const_iterator> equal_range (const key_type& k) const;
-				pair<iterator,iterator>             equal_range (const key_type& k);
+					key_compare cmp = key_comp();
+					iterator it = begin();
+
+					for (; it != end() && cmp(it->first, k); ++it) { ; }
+
+					if ( it != end() && !cmp(k, it->first))
+						return ++it;
+
+					return it;
+				}
+
+				const_iterator upper_bound (const key_type& k) const {
+				
+					key_compare cmp = key_comp();
+					const_iterator cit = begin();
+
+					for (; cit != end() && cmp(cit->first, k); ++cit) { ; }
+
+					if ( cit != end() && !cmp(k, cit->first))
+						return ++cit;
+
+					return cit;
+				}
+
+				pair<iterator,iterator>             equal_range (const key_type& k) {
+				
+					key_compare cmp = key_comp();
+					iterator it = begin();
+
+					for (; it != end() && cmp(it->first, k); ++it) { ; }
+					if ( it != end() && !cmp(k, it->first))
+						return ft::pair<iterator, iterator>(it, ++it);
+					return ft::pair<iterator, iterator>(it, it);
+				}
+
+				pair<const_iterator,const_iterator> equal_range (const key_type& k) const {
+
+					key_compare cmp = key_comp();
+					const_iterator cit = begin();
+
+					for (; cit != end() && cmp(cit->first, k); ++cit) { ; }
+					if ( cit != end() && !cmp(k, cit->first))
+						return ft::pair<const_iterator, const_iterator>(cit, ++cit);
+					return ft::pair<const_iterator, const_iterator>(cit, cit);
+				}
+
 
 
 		};

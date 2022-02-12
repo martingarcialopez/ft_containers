@@ -105,17 +105,21 @@ namespace ft {
 
 				m_iterator() {}
 				m_iterator(Node<T>* ptr) : _current(ptr) {}
+//				m_iterator(m_iterator const &it) : _current(it.base()) {}
+//				m_iterator(Node<const T>* ptr) : _current(ptr) {}
+//				m_iterator(Node<const T>* ptr) : _current(ptr) {}
 				//   KK			m_iterator(const T& ref) : _current(ref) {}
-								operator m_iterator<const T> () const { return (m_iterator<const T>(this->_current)); }
-								m_iterator& operator=(m_iterator const &rhs) {
-								this->_curent= rhs._current;
-								return (*this);
+				operator m_iterator<const T> () const { return (m_iterator<const T>(this->_current)); }
+				m_iterator& operator=(m_iterator const &rhs) {
+					this->_current = rhs._current;
+					return (*this);
 
-								}
-								
+				}
+//				operator m_iterator<const T> () const { return (m_iterator<const T>(this->_current)); } 
+				Node<T>*	base() const { return _current; }
+
 				reference operator*() const { return _current->data; }
 				pointer operator->() const { return &(_current->data); }
-				//				reference operator[](size_t n) const { return *(_ptr + n); }
 
 				m_iterator& operator++() { _current = next_node(_current); return *this; }
 				m_iterator operator++(int) { m_iterator tmp = *this; ++(*this); return tmp; }
@@ -123,29 +127,17 @@ namespace ft {
 				m_iterator& operator--() { _current = prev_node(_current); return *this; }
 				m_iterator operator--(int) { m_iterator tmp = *this; --(*this); return tmp; }
 
-				m_iterator& operator+=(difference_type n) {
-					for (difference_type i = 0; i < n; i++)
-						_current = next_node(_current);
-					return *this;
-				}
-				m_iterator& operator-=(difference_type n) {
-					for (difference_type i = 0; i < n; i--)
-						_current = prev_node(_current);
-					return *this;
-				}
-
-				//				m_iterator operator+(difference_type n) const { return(this->_ptr + n); }
-				//				m_iterator operator-(difference_type n) const { return (this->_ptr - n); }
-
-				friend bool operator!=(const m_iterator<T>& a, const m_iterator<T>& b) {  return a._current != b._current; }
-
-				template <class, class, class, class>
-					friend class map;
-
-				template <class>
-					friend class m_iterator;
 
 		};
+
+	template <typename T>
+		bool operator==(const m_iterator<T>& a, const m_iterator<T>& b) {  return a.base() == b.base(); }
+	template <typename T, typename S>
+		bool operator==(const m_iterator<T>& a, const m_iterator<S>& b) {  return a.base() == b.base(); }
+	template <typename T>
+		bool operator!=(const m_iterator<T>& a, const m_iterator<T>& b) {  return a.base() != b.base(); }
+	template <typename T, typename S>
+		bool operator!=(const m_iterator<T>& a, const m_iterator<S>& b) {  return a.base() != b.base(); }
 
 
 	template <typename Iter>
