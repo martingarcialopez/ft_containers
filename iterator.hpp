@@ -147,7 +147,7 @@ namespace ft {
 
 			private:
 
-				Node<T>* _current;
+				const Node<T>* _current;
 
 
 			public:
@@ -166,7 +166,7 @@ namespace ft {
 
 				}
 //				operator const_m_iterator<const T> () const { return (m_iterator<const T>(this->_current)); } 
-				Node<T>*	base() const { return _current; }
+				const Node<T>*	base() const { return _current; }
 
 				reference operator*() const { return _current->data; }
 				pointer operator->() const { return &(_current->data); }
