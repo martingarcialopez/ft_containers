@@ -156,6 +156,8 @@ int main(int ac, char **av) {
 	for (; it2 != mymap.end(); ++ it2) { ; }
 	printBT(mymap.root);
 
+	std::cout << "size is " << mymap.size() << std::endl;
+
 	return 0;
 
 }

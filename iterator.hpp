@@ -91,8 +91,8 @@ namespace ft {
 			public:
 
 				typedef T								value_type;
-				typedef value_type&						reference;
-				typedef value_type*						pointer;
+				typedef T&								reference;
+				typedef T*								pointer;
 				typedef std::ptrdiff_t					difference_type;
 				typedef std::random_access_iterator_tag iterator_category;
 
@@ -104,12 +104,13 @@ namespace ft {
 			public:
 
 				m_iterator() {}
-				m_iterator(Node<T>* ptr) : _current(ptr) {}
+				m_iterator(Node<T>* ptr) /*: _current(ptr)*/ {_current = ptr; }
+//				m_iterator(Node<T>* const ptr) /*: _current(ptr)*/ {_current = ptr; }
 //				m_iterator(m_iterator const &it) : _current(it.base()) {}
 //				m_iterator(Node<const T>* ptr) : _current(ptr) {}
 //				m_iterator(Node<const T>* ptr) : _current(ptr) {}
 				//   KK			m_iterator(const T& ref) : _current(ref) {}
-				operator m_iterator<const T> () const { return (m_iterator<const T>(this->_current)); }
+				operator m_iterator<const T> () const { return (m_iterator<const T>(_current)); }
 				m_iterator& operator=(m_iterator const &rhs) {
 					this->_current = rhs._current;
 					return (*this);
@@ -129,6 +130,69 @@ namespace ft {
 
 
 		};
+
+
+
+
+	template <typename T>
+		struct const_m_iterator {
+
+			public:
+
+				typedef T								value_type;
+				typedef const T&								reference;
+				typedef const T*								pointer;
+				typedef std::ptrdiff_t					difference_type;
+				typedef std::random_access_iterator_tag iterator_category;
+
+			private:
+
+				Node<T>* _current;
+
+
+			public:
+
+				const_m_iterator() {}
+				const_m_iterator(Node<T>* const ptr) /*: _current(ptr)*/ {_current = ptr; }
+//				const_m_iterator(Node<T>* const ptr) /*: _current(ptr)*/ {_current = ptr; }
+				const_m_iterator(m_iterator<T> const &it) : _current(it.base()) {}
+//				const_m_iterator(Node<const T>* ptr) : _current(ptr) {}
+//				const_m_iterator(Node<const T>* ptr) : _current(ptr) {}
+				//   KK			const_m_iterator(const T& ref) : _current(ref) {}
+				operator const_m_iterator<const T> () const { return (const_m_iterator<const T>(_current)); }
+				const_m_iterator& operator=(const_m_iterator const &rhs) {
+					this->_current = rhs._current;
+					return (*this);
+
+				}
+//				operator const_m_iterator<const T> () const { return (m_iterator<const T>(this->_current)); } 
+				Node<T>*	base() const { return _current; }
+
+				reference operator*() const { return _current->data; }
+				pointer operator->() const { return &(_current->data); }
+
+				const_m_iterator& operator++() { _current = next_node(_current); return *this; }
+				const_m_iterator operator++(int) { const_m_iterator tmp = *this; ++(*this); return tmp; }
+
+				const_m_iterator& operator--() { _current = prev_node(_current); return *this; }
+				const_m_iterator operator--(int) { const_m_iterator tmp = *this; --(*this); return tmp; }
+
+
+		};
+
+
+
+	template <typename T>
+		bool operator==(const const_m_iterator<T>& a, const const_m_iterator<T>& b) {  return a.base() == b.base(); }
+	template <typename T, typename S>
+		bool operator==(const const_m_iterator<T>& a, const const_m_iterator<S>& b) {  return a.base() == b.base(); }
+	template <typename T>
+		bool operator!=(const const_m_iterator<T>& a, const const_m_iterator<T>& b) {  return a.base() != b.base(); }
+	template <typename T, typename S>
+		bool operator!=(const const_m_iterator<T>& a, const const_m_iterator<S>& b) {  return a.base() != b.base(); }
+
+
+
 
 	template <typename T>
 		bool operator==(const m_iterator<T>& a, const m_iterator<T>& b) {  return a.base() == b.base(); }

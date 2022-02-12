@@ -37,7 +37,7 @@ namespace ft {
 				typedef size_t										size_type;
 
 				typedef m_iterator<value_type>						iterator;
-				typedef m_iterator<value_type>				const_iterator;
+				typedef const_m_iterator<value_type>				const_iterator;
 				typedef ft::reverse_iterator<iterator>				reverse_iterator;
 				typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
 
@@ -88,9 +88,6 @@ namespace ft {
 
 						sentinel = node_alloc.allocate(1);
 						node_alloc.construct(sentinel, Node<value_type>(value_type(key_type(), mapped_type()), NULL));
-						std::cout << "sentinel->first: " << sentinel->data.first << std::endl;
-						std::cout << "sentinel->second: " << sentinel->data.second << std::endl;
-						std::cout << "sentinel->left == " << sentinel->left << std::endl;
 					
 					};
 
@@ -152,14 +149,14 @@ namespace ft {
 				bool empty() const { return root == NULL; }
 				size_type size() const {
 
-					return siz;
-										/*	
-											iterator	it = begin();
+//					return siz;
+											
+											const_iterator	it = begin();
 											size_type	count = 0;
 
 											for (; it != end(); ++it)
 											count++;
-											return count;	*/
+											return count;
 				}
 
 				size_type max_size() const {
@@ -358,21 +355,32 @@ namespace ft {
 
 				//		OPERATIONS
 				
-				iterator find_node(const key_type& k, node_pointer node, key_compare cmp) const {
+				iterator find_node(const key_type& k, node_pointer node, key_compare cmp) {
 				
 					if (node == NULL)
 						return end();
-					else if (k == node->data.first) {
-						std::cout << "K is " << k << " n->d.first " << node->data.first << std::endl;
+					else if (k == node->data.first)
 						return iterator(node);
-
-					}
 					else if (cmp(k, node->data.first))
 						return find_node(k, node->left, cmp);
 					else
 						return find_node(k, node->right, cmp);
 				
 				}
+
+				const_iterator const_find_node(const key_type& k, node_pointer const node, key_compare cmp) const {
+				
+					if (node == NULL)
+						return end();
+					else if (k == node->data.first)
+						return iterator(node);
+					else if (cmp(k, node->data.first))
+						return find_node(k, node->left, cmp);
+					else
+						return find_node(k, node->right, cmp);
+				
+				}
+
 
 				iterator find (const key_type& k) {
 
@@ -381,7 +389,7 @@ namespace ft {
 
 				const_iterator find (const key_type& k) const {
 
-					return find_node(k, root, key_comp());
+					return const_find_node(k, root, key_comp());
 				}
 
 				size_type count (const key_type& k) const {

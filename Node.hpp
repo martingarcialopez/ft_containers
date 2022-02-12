@@ -7,8 +7,8 @@ class Node {
 	public:
 
 		Node() : dad(NULL), left(NULL), right(NULL) {}
-		Node(T val) : dad(NULL), left(NULL), right(NULL), data(val) {}
-		Node(T val, Node<T>* parent) : dad(parent), left(NULL), right(NULL), data(val) {}
+		Node(T val) : dad(NULL), left(NULL), right(NULL) { data = val; }
+		Node(const T &val, Node<T>* parent) : dad(parent), left(NULL), right(NULL), data(val) {}
 		~Node() {}
 /*
 		Node(Node<T>& node) {
@@ -21,7 +21,8 @@ class Node {
 		}
   				^ DA ERROR /!\ ^  */
 
-		operator Node<const T> () const { return Node<const T>(*this); }
+//		operator Node<const T> () const { return Node<const T>(*this); }
+
 
 		Node		*dad;
 		Node		*left;
