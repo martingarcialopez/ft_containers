@@ -2,7 +2,7 @@
 # define ITERATOR_HPP
 
 #include "Node.hpp"
-#include "map.hpp"
+//#include "map.hpp"
 
 namespace ft {
 
@@ -202,6 +202,38 @@ namespace ft {
 		bool operator!=(const m_iterator<T>& a, const m_iterator<T>& b) {  return a.base() != b.base(); }
 	template <typename T, typename S>
 		bool operator!=(const m_iterator<T>& a, const m_iterator<S>& b) {  return a.base() != b.base(); }
+
+// FATAL TODO ESTO 
+
+
+	template <typename T>
+		bool operator==(const const_m_iterator<T>& a, const m_iterator<T>& b) {  return a.base() == b.base(); }
+	template <typename T, typename S>
+		bool operator==(const const_m_iterator<T>& a, const m_iterator<S>& b) {  return a.base() == b.base(); }
+	template <typename T>
+		bool operator!=(const const_m_iterator<T>& a, const m_iterator<T>& b) {  return a.base() != b.base(); }
+	template <typename T, typename S>
+		bool operator!=(const const_m_iterator<T>& a, const m_iterator<S>& b) {  return a.base() != b.base(); }
+
+
+
+
+	template <typename T>
+		bool operator==(const m_iterator<T>& a, const const_m_iterator<T>& b) {  return a.base() == b.base(); }
+	template <typename T, typename S>
+		bool operator==(const m_iterator<T>& a, const const_m_iterator<S>& b) {  return a.base() == b.base(); }
+	template <typename T>
+		bool operator!=(const m_iterator<T>& a, const const_m_iterator<T>& b) {  return a.base() != b.base(); }
+	template <typename T, typename S>
+		bool operator!=(const m_iterator<T>& a, const const_m_iterator<S>& b) {  return a.base() != b.base(); }
+
+
+
+
+
+
+
+// HA ESTADO FATAL TODO ESO
 
 
 	template <typename Iter>

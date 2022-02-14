@@ -87,7 +87,53 @@ Node<T>*	next_node(Node<T>* node) {
 }
 
 template<typename T>
+const Node<T>*	next_node(const Node<T>* node) {
+
+	if (!node)
+		return node;
+
+	if (node->right != NULL)
+		return leftmost_node(node->right);
+
+	Node<T>* parent = node->dad;	
+	if (parent == NULL)
+		return NULL;
+
+	if (node == parent->left)
+		return parent;
+
+	while (parent != NULL && node != parent->left) {
+		node = parent;
+		parent = node->dad;
+	}
+	return parent;
+}
+
+template<typename T>
 Node<T>*	prev_node(Node<T>* node) {
+
+	if (!node)
+		return node;
+
+	if (node->left != NULL)
+		return rightmost_node(node->left);
+
+	Node<T>* parent = node->dad;	
+	if (parent == NULL)
+		return NULL;
+
+	if (node == parent->right)
+		return parent;
+
+	while (parent != NULL && node != parent->right) {
+		node = parent;
+		parent = node->dad;
+	}
+	return parent;
+}
+
+template<typename T>
+const Node<T>*	prev_node(const Node<T>* node) {
 
 	if (!node)
 		return node;

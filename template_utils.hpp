@@ -4,6 +4,39 @@
 
 namespace ft {
 
+	template<bool B, class T = void>
+		struct enable_if {};
+
+	template<class T>
+		struct enable_if<true, T> { typedef T type; };
+
+	template <class T, T v>
+		struct integral_constant {
+			static const T	value = v;
+			typedef T			value_type;
+			typedef integral_constant<T,v> type;
+		};
+
+	typedef integral_constant<bool, true> true_type;
+	typedef integral_constant<bool, false> false_type;
+
+	template<typename> struct is_integral_base: false_type {};
+	template<> struct is_integral_base<bool>: true_type {};
+	template<> struct is_integral_base<const bool>: true_type {};
+	template<> struct is_integral_base<int>: true_type {};
+	template<> struct is_integral_base<const int>: true_type {};
+	template<> struct is_integral_base<short>: true_type {};
+	template<> struct is_integral_base<const short>: true_type {};
+	template<> struct is_integral_base<char>: true_type {};
+	template<> struct is_integral_base<const char>: true_type {};
+	template<> struct is_integral_base<wchar_t>: true_type {};
+	template<> struct is_integral_base<const wchar_t>: true_type {};
+	template<> struct is_integral_base<long>: true_type {};
+	template<> struct is_integral_base<const long>: true_type {};
+	template<> struct is_integral_base<long long>: true_type {};
+	template<> struct is_integral_base<const long long>: true_type {};
+	template<typename T> struct is_integral: is_integral_base<T> {};
+
 
 	template <class T1, class T2>
 		struct pair {
@@ -24,7 +57,7 @@ namespace ft {
 
 				first = pr.first;
 				second = pr.second;
-	
+
 				return *this;
 			}
 

@@ -12,7 +12,7 @@
 /* TO DO: 	Range constructor
  * 			erase() return value
  *			Properly free del nodes on erase()
- *
+ *			change std::equal and std::lexicographical compare 
  *
  */ 
 
@@ -36,8 +36,8 @@ namespace ft {
 				typedef std::ptrdiff_t 							difference_type;
 				typedef size_t										size_type;
 
-				typedef m_iterator<value_type>						iterator;
-				typedef const_m_iterator<value_type>				const_iterator;
+				typedef m_iterator<value_type>					iterator;
+				typedef const_m_iterator<value_type>			const_iterator;
 				typedef ft::reverse_iterator<iterator>				reverse_iterator;
 				typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
 
@@ -46,7 +46,6 @@ namespace ft {
 				typedef typename Alloc::template rebind< Node<value_type> >::other				node_allocator;
 				typedef typename Alloc::template rebind< Node<value_type> >::other::pointer	node_pointer;
 				//						 typedef typename Node<Key,T>												node;
-
 
 				class value_compare
 				{   // in C++98, it is required to inherit binary_function<value_type,value_type,bool>
@@ -65,6 +64,7 @@ namespace ft {
 				};
 
 
+
 				//private:
 			public:
 
@@ -80,16 +80,16 @@ namespace ft {
 
 				//		MEMBER FUNCTIONS
 				explicit map (const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) : root(NULL), siz(0) {
-					
-//						alloc_node(sentinel, root, value_type(key_type(), mapped_type())); 
 
-						this->alloc = alloc;
-						this->comp = comp;
+					//						alloc_node(sentinel, root, value_type(key_type(), mapped_type())); 
 
-						sentinel = node_alloc.allocate(1);
-						node_alloc.construct(sentinel, Node<value_type>(value_type(key_type(), mapped_type()), NULL));
-					
-					};
+					this->alloc = alloc;
+					this->comp = comp;
+
+					sentinel = node_alloc.allocate(1);
+					node_alloc.construct(sentinel, Node<value_type>(value_type(key_type(), mapped_type()), NULL));
+
+				};
 
 
 				template <class InputIterator>
@@ -100,7 +100,7 @@ namespace ft {
 						this->alloc = alloc;
 						this->comp = comp;
 						insert(first, last);
-					
+
 					}
 
 
@@ -138,7 +138,7 @@ namespace ft {
 				reverse_iterator rbegin() { return  reverse_iterator(rightmost_node(root)->right); }
 				const_reverse_iterator rbegin() const { return const_reverse_iterator(sentinel); }
 
-				reverse_iterator rend() { reverse_iterator(leftmost_node(sentinel)); }
+				reverse_iterator rend() { return reverse_iterator(leftmost_node(sentinel)); }
 				const_reverse_iterator rend() const { return const_reverse_iterator(leftmost_node(sentinel)); }
 
 
@@ -149,14 +149,14 @@ namespace ft {
 				bool empty() const { return root == NULL; }
 				size_type size() const {
 
-//					return siz;
-											
-											const_iterator	it = begin();
-											size_type	count = 0;
+					//					return siz;
 
-											for (; it != end(); ++it)
-											count++;
-											return count;
+					const_iterator	it = begin();
+					size_type	count = 0;
+
+					for (; it != end(); ++it)
+						count++;
+					return count;
 				}
 
 				size_type max_size() const {
@@ -220,8 +220,7 @@ namespace ft {
 
 					(void)position;
 
-					key_compare	map_comp = key_comp();
-					return insert_node(val, root, NULL, key_comp());
+					return insert_node(val, root, sentinel, key_comp()).first;
 				}
 				template <class InputIterator>
 					void insert (InputIterator first, InputIterator last) {
@@ -232,8 +231,6 @@ namespace ft {
 
 					}
 
-				// void erase (iterator position);
-				//  ^ enable_if needed
 
 
 				node_pointer delete_node(node_pointer node, const key_type &k) {
@@ -292,6 +289,13 @@ namespace ft {
 					return node;
 				}
 
+				void erase (iterator position) {
+					//  ^ enable_if needed
+					//
+					root = delete_node(root, position->first);
+
+
+				}
 
 				size_type erase (const key_type& k) {
 
@@ -303,7 +307,7 @@ namespace ft {
 
 				void erase (iterator first, iterator last) {
 					for (; first != last; ++first) {
-						delete(first->first);
+						root = delete_node(root, first->first);
 					}
 				}
 
@@ -354,9 +358,9 @@ namespace ft {
 
 
 				//		OPERATIONS
-				
+
 				iterator find_node(const key_type& k, node_pointer node, key_compare cmp) {
-				
+
 					if (node == NULL)
 						return end();
 					else if (k == node->data.first)
@@ -365,11 +369,11 @@ namespace ft {
 						return find_node(k, node->left, cmp);
 					else
 						return find_node(k, node->right, cmp);
-				
+
 				}
 
 				const_iterator const_find_node(const key_type& k, node_pointer const node, key_compare cmp) const {
-				
+
 					if (node == NULL)
 						return end();
 					else if (k == node->data.first)
@@ -378,7 +382,7 @@ namespace ft {
 						return find_node(k, node->left, cmp);
 					else
 						return find_node(k, node->right, cmp);
-				
+
 				}
 
 
@@ -432,7 +436,7 @@ namespace ft {
 				}
 
 				const_iterator upper_bound (const key_type& k) const {
-				
+
 					key_compare cmp = key_comp();
 					const_iterator cit = begin();
 
@@ -445,7 +449,7 @@ namespace ft {
 				}
 
 				pair<iterator,iterator>             equal_range (const key_type& k) {
-				
+
 					key_compare cmp = key_comp();
 					iterator it = begin();
 
@@ -469,6 +473,39 @@ namespace ft {
 
 
 		};
+
+
+
+	template<typename Key, typename T, typename Compare, typename Alloc>
+		bool operator==(const map<Key, T, Compare, Alloc>& a, const map<Key, T, Compare, Alloc>& b) {
+			return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin());
+		}
+
+	template<typename Key, typename T, typename Compare, typename Alloc>
+		bool operator!=(const map<Key, T, Compare, Alloc>& a, const map<Key, T, Compare, Alloc>& b) {
+			return !(a == b);
+		}
+
+	template<typename Key, typename T, typename Compare, typename Alloc>
+		bool operator<(const map<Key, T, Compare, Alloc>& a, const map<Key, T, Compare, Alloc>& b) {
+			return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
+		}
+
+	template<typename Key, typename T, typename Compare, typename Alloc>
+		bool operator>(const map<Key, T, Compare, Alloc>& a, const map<Key, T, Compare, Alloc>& b) {
+			return !(a < b) && a != b;
+		}
+
+	template<typename Key, typename T, typename Compare, typename Alloc>
+		bool operator<=(const map<Key, T, Compare, Alloc>& a, const map<Key, T, Compare, Alloc>& b) {
+			return !(a > b);
+		}
+	
+	template<typename Key, typename T, typename Compare, typename Alloc>
+		bool operator>=(const map<Key, T, Compare, Alloc>& a, const map<Key, T, Compare, Alloc>& b) {
+			return !(a < b);
+		}
+
 }
 
 #endif
