@@ -99,18 +99,32 @@ namespace ft {
 
 						this->alloc = alloc;
 						this->comp = comp;
+
+					sentinel = node_alloc.allocate(1);
+					node_alloc.construct(sentinel, Node<value_type>(value_type(key_type(), mapped_type()), NULL));
+
 						insert(first, last);
+
+				//		std::cout << "sentinel left == " << sentinel->left << std::endl;
+				//		std::cout << " and root     == " << root << std::endl;
 
 					}
 
 
-				map (const map& x) {
+				map (const map& x) : root(NULL), siz(0) {
 
+					sentinel = node_alloc.allocate(1);
+					node_alloc.construct(sentinel, Node<value_type>(value_type(key_type(), mapped_type()), NULL));
+
+					*this = x;
+				//		std::cout << "sentinel left == " << sentinel->left << std::endl;
+				//		std::cout << " and root     == " << root << std::endl;
+/*
 					alloc = x.alloc;
 					comp = x.comp;
 					root = x.root;
 					siz = x.siz;
-
+*/
 				}
 
 				~map() {
@@ -120,9 +134,13 @@ namespace ft {
 
 				map& operator= (const map& x) {
 
-					alloc = x.alloc;
+					clear();
+					insert(x.begin(), x.end());
+
+
+/*					alloc = x.alloc;
 					comp = x.comp;
-					root = x.root;
+					root = x.root;*/
 
 					return *this;
 				}
@@ -149,14 +167,14 @@ namespace ft {
 				bool empty() const { return root == NULL; }
 				size_type size() const {
 
-					//					return siz;
+										return siz;
 
-					const_iterator	it = begin();
+				/*	const_iterator	it = begin();
 					size_type	count = 0;
 
 					for (; it != end(); ++it)
 						count++;
-					return count;
+					return count;*/
 				}
 
 				size_type max_size() const {
@@ -222,6 +240,8 @@ namespace ft {
 
 					return insert_node(val, root, sentinel, key_comp()).first;
 				}
+				
+				
 				template <class InputIterator>
 					void insert (InputIterator first, InputIterator last) {
 
@@ -353,6 +373,13 @@ namespace ft {
 				void clear() {
 
 					delete_tree(root);
+					sentinel->left = NULL;
+
+//					std::cout << "after clear root is " << root << siz << std::endl;	
+//					siz = 0;
+
+//					std::cout << "after clear size is " << siz << std::endl;	
+
 
 				}
 

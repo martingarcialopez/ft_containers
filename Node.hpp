@@ -7,9 +7,11 @@ class Node {
 	public:
 
 		Node() : dad(NULL), left(NULL), right(NULL) {}
-		Node(T val) : dad(NULL), left(NULL), right(NULL) { data = val; }
+		Node(T val) : dad(NULL), left(NULL), right(NULL), data(val) {}
 		Node(const T &val, Node<T>* parent) : dad(parent), left(NULL), right(NULL), data(val) {}
 		~Node() {}
+
+//		T& operator*() const { return this; }
 /*
 		Node(Node<T>& node) {
 		

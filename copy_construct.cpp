@@ -1,5 +1,6 @@
 #include <list>
 #include "map.hpp"
+#include "common.hpp"
 #include <map>
 
 #ifdef STD
@@ -43,20 +44,21 @@ int		main(void)
 
 	std::cout << "\t-- PART ONE --" << std::endl;
 
-	std::cout << "size is " << mp.size() << std::endl;
-/*
+//	std::cout << "size is " << mp.size() << std::endl;
+
 	printSize(mp);
 	printSize(mp_range);
 	printSize(mp_copy);
-*/
+
 	mp = mp_copy;
 	mp_copy = mp_range;
 	mp_range.clear();
+	mp_copy.clear();
 
 	std::cout << "\t-- PART TWO --" << std::endl;
-	std::cout << "size is " << mp.size() << std::endl;
-	/*printSize(mp);
+//	std::cout << "size is " << mp.size() << std::endl;
+	printSize(mp);
 	printSize(mp_range);
-	printSize(mp_copy);*/
+	printSize(mp_copy);
 	return (0);
 }
