@@ -11,9 +11,10 @@
 
 /* TO DO: 	Range constructor
  * 			erase() return value
+ * 			review delete_node
  *			Properly free del nodes on erase()
  *			change std::equal and std::lexicographical compare 
- *
+ *			change variables to private
  */ 
 
 namespace ft {
@@ -73,6 +74,7 @@ namespace ft {
 				key_compare			comp;
 				node_pointer		root;
 				node_pointer		sentinel;
+				node_pointer		sentinel2;
 				size_type			siz;
 
 
@@ -87,7 +89,11 @@ namespace ft {
 					this->comp = comp;
 
 					sentinel = node_alloc.allocate(1);
-					node_alloc.construct(sentinel, Node<value_type>(value_type(key_type(), mapped_type()), NULL));
+					sentinel2 = node_alloc.allocate(1);
+					node_alloc.construct(sentinel, value_type(key_type(21), mapped_type()));
+					node_alloc.construct(sentinel2, value_type(key_type(14), mapped_type()));
+					sentinel2->right = sentinel;
+					sentinel->dad = sentinel2;
 
 				};
 
@@ -101,7 +107,11 @@ namespace ft {
 						this->comp = comp;
 
 					sentinel = node_alloc.allocate(1);
-					node_alloc.construct(sentinel, Node<value_type>(value_type(key_type(), mapped_type()), NULL));
+					sentinel2 = node_alloc.allocate(1);
+					node_alloc.construct(sentinel, value_type(key_type(21), mapped_type()));
+					node_alloc.construct(sentinel2, value_type(key_type(14), mapped_type()));
+					sentinel2->right = sentinel;
+					sentinel->dad = sentinel2;
 
 						insert(first, last);
 
@@ -114,7 +124,11 @@ namespace ft {
 				map (const map& x) : root(NULL), siz(0) {
 
 					sentinel = node_alloc.allocate(1);
-					node_alloc.construct(sentinel, Node<value_type>(value_type(key_type(), mapped_type()), NULL));
+					sentinel2 = node_alloc.allocate(1);
+					node_alloc.construct(sentinel, value_type(key_type(21), mapped_type()));
+					node_alloc.construct(sentinel2, value_type(key_type(14), mapped_type()));
+					sentinel2->right = sentinel;
+					sentinel->dad = sentinel2;
 
 					*this = x;
 				//		std::cout << "sentinel left == " << sentinel->left << std::endl;
@@ -151,13 +165,13 @@ namespace ft {
 				const_iterator begin() const { return const_iterator(leftmost_node(sentinel)); }
 
 				iterator end() { return iterator(sentinel); }
-				const_iterator end() const { return sentinel; }
+				const_iterator end() const { return const_iterator(sentinel); }
 
-				reverse_iterator rbegin() { return  reverse_iterator(rightmost_node(root)->right); }
-				const_reverse_iterator rbegin() const { return const_reverse_iterator(sentinel); }
+				reverse_iterator rbegin() { return  reverse_iterator(rightmost_node(sentinel)); }
+				const_reverse_iterator rbegin() const { return const_reverse_iterator(rightmost_node(sentinel)); }
 
-				reverse_iterator rend() { return reverse_iterator(leftmost_node(sentinel)); }
-				const_reverse_iterator rend() const { return const_reverse_iterator(leftmost_node(sentinel)); }
+				reverse_iterator rend() { return reverse_iterator(leftmost_node(sentinel)); }//reverse_iterator(leftmost_node(sentinel)); }
+				const_reverse_iterator rend() const { return const_reverse_iterator(leftmost_node(sentinel)); }//const_reverse_iterator(leftmost_node(sentinel)); }
 
 
 
@@ -179,6 +193,10 @@ namespace ft {
 
 				size_type max_size() const {
 					return node_alloc.max_size();
+
+//	///				return std::numeric_limits<difference_type>::max() / (sizeof(Node<value_type>) / 2 ?: 1);// / (sizeof(Node<value_type>) );
+// 					return std::numeric_limits<difference_type>::max() / (sizeof(Node<value_type>) / 2 ?: 1);
+	
 				}
 
 
@@ -251,7 +269,63 @@ namespace ft {
 
 					}
 
+/*				void		delete_node(node_pointer &node, const key_type &k) {
 
+					if (node == NULL)
+						return ;
+					if (k < node->data.first)
+						delete_node(node->left, k);
+					if (k > node->data.first)
+						delete_node(node->right, k);
+					else if (k == node->data.first) {
+
+						if (node->left == NULL && node->right == NULL) {
+							destroy_node(node);
+						}
+						else if (node->left == NULL) {
+							node_pointer tmp = node->right; 
+							destroy_node(node);
+							node = tmp;
+						}
+						else if (node->right == NULL) {
+
+							node_pointer tmp = node->left;
+							destroy_node(node);
+							node = tmp;
+						}
+
+						node_pointer tmp = leftmost_node(node->right);
+						delete_node(node->right, tmp->data.first);
+
+
+						if (tmp) {
+							tmp->dad = node->dad;
+							tmp->left = node->left;
+							tmp->right = node->right;
+						}
+						if (node->dad) {
+							if (node->dad->left == node)
+								node->dad->left = tmp;
+							else if (node->dad->right == node)
+								node->dad->right = tmp;
+						}
+						if (node->left)
+							node->left->dad = tmp;
+						if (node->right)
+							node->right->dad = tmp;
+
+
+
+						//             DEALLOCATE NODE
+						destroy_node(node);
+						//node = NULL;
+						//siz -= 1;
+
+
+					}
+				}
+
+*/
 
 				node_pointer delete_node(node_pointer node, const key_type &k) {
 
@@ -263,28 +337,32 @@ namespace ft {
 						node->right = delete_node(node->right, k);
 					else if (k == node->data.first) {
 
-						siz -= 1;
-
 						if (node->left == NULL && node->right == NULL) {
+							destroy_node(node);
 							//node = NULL;
+							//siz -= 1;
 							return NULL; 
 						}
 						else if (node->left == NULL) {
 							node_pointer tmp = node->right; 
-							//deallocate node
-							node = NULL;
+							destroy_node(node);
+							//node = NULL;
+							//siz -= 1;
 							return tmp;
 						}
 						else if (node->right == NULL) {
 
 							node_pointer tmp = node->left;
 							// deallocate node
-							node = NULL;
+							destroy_node(node);
+							//node = NULL;
+							//siz -= 1;
 							return tmp;
 						}
-						node_pointer tmp = leftmost_node(node->right);
 
+						node_pointer tmp = leftmost_node(node->right);
 						node->right = delete_node(node->right, tmp->data.first);
+
 
 						tmp->dad = node->dad;
 						tmp->left = node->left;
@@ -300,8 +378,12 @@ namespace ft {
 						if (node->right)
 							node->right->dad = tmp;
 
+
+
 						//             DEALLOCATE NODE
-						node = NULL;
+						destroy_node(node);
+						//node = NULL;
+						//siz -= 1;
 
 						return tmp;
 
@@ -310,24 +392,40 @@ namespace ft {
 				}
 
 				void erase (iterator position) {
-					//  ^ enable_if needed
-					//
+//					if (!count(position->first))
+//						return ;
 					root = delete_node(root, position->first);
-
-
+//					siz -= 1;
+//					root->dad = sentinel;
+//					sentinel->left = root;
 				}
 
 				size_type erase (const key_type& k) {
 
+					size_type tmp = siz;
+//					if (!count(k)) 
+//						return 0;
+//
+//					std::cout << "before erase sentinel is " << &sentinel << " and root is " << &root << std::endl;
+					
 					root = delete_node(root, k);
+//					root->dad = sentinel;
+//					sentinel->left = root;
+//					siz -= 1;
+//					std::cout << "after erase sentinel is " << &sentinel << " and root is " << &root << std::endl;
+					return tmp - siz;
 
-					return 1;
 				}
 
 
 				void erase (iterator first, iterator last) {
 					for (; first != last; ++first) {
-						root = delete_node(root, first->first);
+//						if (count(first->first)) {
+							root = delete_node(root, first->first);
+//							root->dad = sentinel;
+//							sentinel->left = root;
+//							siz -= 1;
+//						}
 					}
 				}
 
@@ -338,6 +436,7 @@ namespace ft {
 					this->comp = x.comp;
 					this->root = x.root;
 					this->siz = x.siz;
+					this->sentinel = x.sentinel;
 
 				}
 
@@ -406,9 +505,9 @@ namespace ft {
 					else if (k == node->data.first)
 						return iterator(node);
 					else if (cmp(k, node->data.first))
-						return find_node(k, node->left, cmp);
+						return const_find_node(k, node->left, cmp);
 					else
-						return find_node(k, node->right, cmp);
+						return const_find_node(k, node->right, cmp);
 
 				}
 
@@ -477,24 +576,38 @@ namespace ft {
 
 				pair<iterator,iterator>             equal_range (const key_type& k) {
 
+					pair<iterator, iterator>	ret;
+
+					ret.first = lower_bound(k);
+					ret.second = upper_bound(k);
+
+					return ret;
+/*
 					key_compare cmp = key_comp();
 					iterator it = begin();
 
 					for (; it != end() && cmp(it->first, k); ++it) { ; }
 					if ( it != end() && !cmp(k, it->first))
 						return ft::pair<iterator, iterator>(it, ++it);
-					return ft::pair<iterator, iterator>(it, it);
+					return ft::pair<iterator, iterator>(it, it);*/
 				}
 
 				pair<const_iterator,const_iterator> equal_range (const key_type& k) const {
 
+					pair<const_iterator, const_iterator>	ret;
+
+					ret.first = lower_bound(k);
+					ret.second = upper_bound(k);
+
+					return ret;
+/*
 					key_compare cmp = key_comp();
 					const_iterator cit = begin();
 
 					for (; cit != end() && cmp(cit->first, k); ++cit) { ; }
 					if ( cit != end() && !cmp(k, cit->first))
 						return ft::pair<const_iterator, const_iterator>(cit, ++cit);
-					return ft::pair<const_iterator, const_iterator>(cit, cit);
+					return ft::pair<const_iterator, const_iterator>(cit, cit);*/
 				}
 
 
@@ -515,7 +628,7 @@ namespace ft {
 
 	template<typename Key, typename T, typename Compare, typename Alloc>
 		bool operator<(const map<Key, T, Compare, Alloc>& a, const map<Key, T, Compare, Alloc>& b) {
-			return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
+			return ft::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
 		}
 
 	template<typename Key, typename T, typename Compare, typename Alloc>

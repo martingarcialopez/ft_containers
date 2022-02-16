@@ -30,6 +30,8 @@ class Node {
 		Node		*left;
 		Node		*right;
 
+		Node		*useless_address;
+
 		T			data;
 };
 

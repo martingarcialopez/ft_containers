@@ -61,10 +61,10 @@ void printBT(const Node<T> *node)
 
 int main(int ac, char **av) {
 
-	t_node<int, std::string>		root;
+/*	t_node<int, std::string>		root;
 	t_node<int, std::string>		leaf2;
 	t_node<int, std::string>		leaf3;
-	t_node<int, std::string>		leaf4;
+	t_node<int, std::string>		leaf4;*/
 
 
 	/*
@@ -126,11 +126,12 @@ int main(int ac, char **av) {
 	   }
 	   */
 	printBT(mymap.root);
+	mymap.erase(atoi("6"));
+	printBT(mymap.root);
 	/*
 	   std::cout << std::endl << std::endl;
 
 	   if (av[1])
-	   mymap.erase(atoi(av[1]));
 	   else
 	   mymap.erase(5);
 	   mymap.print_tree_inorder(mymap.root);
@@ -157,6 +158,58 @@ int main(int ac, char **av) {
 	printBT(mymap.root);
 
 	std::cout << "size is " << mymap.size() << std::endl;
+
+
+
+	{
+	
+	
+		ft::map<int, std::string>::iterator it = mymap.begin();
+		ft::map<int, std::string>::iterator ite = mymap.end();
+
+		for (; it != ite; ++it) {
+
+			std::cout << it->first << " ";
+
+		}
+		std::cout << std::endl;
+
+		ft::map<int, std::string>::reverse_iterator rit = mymap.rbegin();
+		ft::map<int, std::string>::reverse_iterator rite = mymap.rend();
+	
+		/* for (; rit != rite; ++rit) { */
+
+
+		/* 	std::cout << rit->first << " "; */
+
+		/* } */
+		/* std::cout << std::endl; */
+
+//		std::cout << rite->first << std::endl;
+		--rite;
+		std::cout << rite->first << std::endl;
+	
+		/* ft::map<int, std::string>::reverse_iterator iite = mymap.end(); */
+		/* ft::map<int, std::string>::reverse_iterator iit = mymap.begin(); */
+		/* --iit; */
+		/* iite++; */
+	
+		/* for (; iite != iit; --iite) { */
+
+
+		/* 	std::cout << iite->first << " "; */
+
+		/* } */
+		/* std::cout << std::endl; */
+	
+	
+	}
+
+
+
+
+
+
 
 	return 0;
 
