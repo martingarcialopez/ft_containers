@@ -36,7 +36,7 @@ namespace ft {
 
 
 	template <typename T>
-		struct v_iterator {
+		class v_iterator {
 
 			public:
 

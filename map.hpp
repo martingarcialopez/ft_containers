@@ -9,14 +9,6 @@
 # include "iterator.hpp"
 
 
-/* TO DO: 	Range constructor
- * 			erase() return value
- * 			review delete_node
- *			Properly free del nodes on erase()
- *			change std::equal and std::lexicographical compare 
- *			change variables to private
- */ 
-
 namespace ft {
 
 	template < class Key, class T, class Compare = std::less<Key>, class Alloc = std::allocator<ft::pair<const Key,T> > >
@@ -25,7 +17,7 @@ namespace ft {
 			public:
 
 				//		MEMBER TYPES
-				typedef ft::pair<const Key, T> 					value_type;
+				typedef ft::pair<const Key, T> 						value_type;
 				typedef Key											key_type;
 				typedef T											mapped_type;
 				typedef Compare										key_compare;
@@ -34,22 +26,19 @@ namespace ft {
 				typedef typename allocator_type::const_reference	const_reference;
 				typedef typename allocator_type::pointer			pointer;
 				typedef typename allocator_type::const_pointer		const_pointer;
-				typedef std::ptrdiff_t 							difference_type;
+				typedef std::ptrdiff_t 								difference_type;
 				typedef size_t										size_type;
 
-				typedef m_iterator<value_type>					iterator;
-				typedef const_m_iterator<value_type>			const_iterator;
+				typedef m_iterator<value_type>						iterator;
+				typedef const_m_iterator<value_type>				const_iterator;
 				typedef ft::reverse_iterator<iterator>				reverse_iterator;
 				typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
 
-			public:
-
 				typedef typename Alloc::template rebind< Node<value_type> >::other				node_allocator;
-				typedef typename Alloc::template rebind< Node<value_type> >::other::pointer	node_pointer;
-				//						 typedef typename Node<Key,T>												node;
+				typedef typename Alloc::template rebind< Node<value_type> >::other::pointer		node_pointer;
 
 				class value_compare
-				{   // in C++98, it is required to inherit binary_function<value_type,value_type,bool>
+				{
 					friend class map;
 					protected:
 					Compare comp;
@@ -62,12 +51,10 @@ namespace ft {
 					{
 						return comp(x.first, y.first);
 					}
+					
 				};
 
-
-
-				//private:
-			public:
+			private:
 
 				allocator_type		alloc;
 				node_allocator		node_alloc;
@@ -81,17 +68,16 @@ namespace ft {
 			public:
 
 				//		MEMBER FUNCTIONS
-				explicit map (const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) : root(NULL), siz(0) {
-
-					//						alloc_node(sentinel, root, value_type(key_type(), mapped_type())); 
+				explicit map (const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
+					: root(NULL), siz(0) {
 
 					this->alloc = alloc;
 					this->comp = comp;
 
 					sentinel = node_alloc.allocate(1);
 					sentinel2 = node_alloc.allocate(1);
-					node_alloc.construct(sentinel, value_type(key_type(21), mapped_type()));
-					node_alloc.construct(sentinel2, value_type(key_type(14), mapped_type()));
+					node_alloc.construct(sentinel, value_type(key_type(), mapped_type()));
+					node_alloc.construct(sentinel2, value_type(key_type(), mapped_type()));
 					sentinel2->right = sentinel;
 					sentinel->dad = sentinel2;
 
@@ -99,24 +85,20 @@ namespace ft {
 
 
 				template <class InputIterator>
-					map (InputIterator first, InputIterator last,
-							const key_compare& comp = key_compare(),
+					map (InputIterator first, InputIterator last, const key_compare& comp = key_compare(),
 							const allocator_type& alloc = allocator_type()) : root(NULL), siz(0) { 
 
 						this->alloc = alloc;
 						this->comp = comp;
 
-					sentinel = node_alloc.allocate(1);
-					sentinel2 = node_alloc.allocate(1);
-					node_alloc.construct(sentinel, value_type(key_type(21), mapped_type()));
-					node_alloc.construct(sentinel2, value_type(key_type(14), mapped_type()));
-					sentinel2->right = sentinel;
-					sentinel->dad = sentinel2;
+						sentinel = node_alloc.allocate(1);
+						sentinel2 = node_alloc.allocate(1);
+						node_alloc.construct(sentinel, value_type(key_type(), mapped_type()));
+						node_alloc.construct(sentinel2, value_type(key_type(), mapped_type()));
+						sentinel2->right = sentinel;
+						sentinel->dad = sentinel2;
 
 						insert(first, last);
-
-				//		std::cout << "sentinel left == " << sentinel->left << std::endl;
-				//		std::cout << " and root     == " << root << std::endl;
 
 					}
 
@@ -125,36 +107,29 @@ namespace ft {
 
 					sentinel = node_alloc.allocate(1);
 					sentinel2 = node_alloc.allocate(1);
-					node_alloc.construct(sentinel, value_type(key_type(21), mapped_type()));
-					node_alloc.construct(sentinel2, value_type(key_type(14), mapped_type()));
+					node_alloc.construct(sentinel, value_type(key_type(), mapped_type()));
+					node_alloc.construct(sentinel2, value_type(key_type(), mapped_type()));
 					sentinel2->right = sentinel;
 					sentinel->dad = sentinel2;
 
 					*this = x;
-				//		std::cout << "sentinel left == " << sentinel->left << std::endl;
-				//		std::cout << " and root     == " << root << std::endl;
-/*
-					alloc = x.alloc;
-					comp = x.comp;
-					root = x.root;
-					siz = x.siz;
-*/
 				}
 
 				~map() {
 
-					// TO_DO: DEALOCATE EVERYTHING
+					clear();
+
+					node_alloc.destroy(sentinel);
+					node_alloc.destroy(sentinel2);
+					node_alloc.deallocate(sentinel, 1);
+					node_alloc.deallocate(sentinel2, 1);
+
 				}
 
 				map& operator= (const map& x) {
 
 					clear();
 					insert(x.begin(), x.end());
-
-
-/*					alloc = x.alloc;
-					comp = x.comp;
-					root = x.root;*/
 
 					return *this;
 				}
@@ -170,8 +145,8 @@ namespace ft {
 				reverse_iterator rbegin() { return  reverse_iterator(rightmost_node(sentinel)); }
 				const_reverse_iterator rbegin() const { return const_reverse_iterator(rightmost_node(sentinel)); }
 
-				reverse_iterator rend() { return reverse_iterator(leftmost_node(sentinel)); }//reverse_iterator(leftmost_node(sentinel)); }
-				const_reverse_iterator rend() const { return const_reverse_iterator(leftmost_node(sentinel)); }//const_reverse_iterator(leftmost_node(sentinel)); }
+				reverse_iterator rend() { return reverse_iterator(begin()); }
+				const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
 
 
 
@@ -179,26 +154,8 @@ namespace ft {
 
 				//		CAPACITY
 				bool empty() const { return root == NULL; }
-				size_type size() const {
-
-										return siz;
-
-				/*	const_iterator	it = begin();
-					size_type	count = 0;
-
-					for (; it != end(); ++it)
-						count++;
-					return count;*/
-				}
-
-				size_type max_size() const {
-					return node_alloc.max_size();
-
-//	///				return std::numeric_limits<difference_type>::max() / (sizeof(Node<value_type>) / 2 ?: 1);// / (sizeof(Node<value_type>) );
-// 					return std::numeric_limits<difference_type>::max() / (sizeof(Node<value_type>) / 2 ?: 1);
-	
-				}
-
+				size_type size() const { return siz; }
+				size_type max_size() const { return node_alloc.max_size(); }
 
 
 				//		OBSERVERS
@@ -207,15 +164,14 @@ namespace ft {
 				value_compare value_comp() const { return value_compare(comp); }
 
 
-
 				//		ELEMENT ACCESS
 
-				mapped_type& operator[] (const key_type& k) {
-					return (*((this->insert(ft::make_pair(k,mapped_type()))).first)).second;
-				}
+				mapped_type& operator[] (const key_type& k) { return (*((this->insert(ft::make_pair(k,mapped_type()))).first)).second; }
 
 
 				//		MODIFIERS
+
+			private:
 
 				ft::pair<iterator, bool>		alloc_node(node_pointer &node, node_pointer &parent, const value_type& val) {
 
@@ -243,13 +199,12 @@ namespace ft {
 
 				}
 
+			public:
+
 				ft::pair<iterator,bool>		insert (const value_type& val) {
 
 					return insert_node(val, root, sentinel, key_comp());
 				}
-
-
-				//							 std::cout << "map_comp( 3, 5) returns " << map_comp(5, 3) << std::endl;
 
 
 				iterator insert (iterator position, const value_type& val) {
@@ -258,8 +213,8 @@ namespace ft {
 
 					return insert_node(val, root, sentinel, key_comp()).first;
 				}
-				
-				
+
+
 				template <class InputIterator>
 					void insert (InputIterator first, InputIterator last) {
 
@@ -269,63 +224,7 @@ namespace ft {
 
 					}
 
-/*				void		delete_node(node_pointer &node, const key_type &k) {
-
-					if (node == NULL)
-						return ;
-					if (k < node->data.first)
-						delete_node(node->left, k);
-					if (k > node->data.first)
-						delete_node(node->right, k);
-					else if (k == node->data.first) {
-
-						if (node->left == NULL && node->right == NULL) {
-							destroy_node(node);
-						}
-						else if (node->left == NULL) {
-							node_pointer tmp = node->right; 
-							destroy_node(node);
-							node = tmp;
-						}
-						else if (node->right == NULL) {
-
-							node_pointer tmp = node->left;
-							destroy_node(node);
-							node = tmp;
-						}
-
-						node_pointer tmp = leftmost_node(node->right);
-						delete_node(node->right, tmp->data.first);
-
-
-						if (tmp) {
-							tmp->dad = node->dad;
-							tmp->left = node->left;
-							tmp->right = node->right;
-						}
-						if (node->dad) {
-							if (node->dad->left == node)
-								node->dad->left = tmp;
-							else if (node->dad->right == node)
-								node->dad->right = tmp;
-						}
-						if (node->left)
-							node->left->dad = tmp;
-						if (node->right)
-							node->right->dad = tmp;
-
-
-
-						//             DEALLOCATE NODE
-						destroy_node(node);
-						//node = NULL;
-						//siz -= 1;
-
-
-					}
-				}
-
-*/
+			private:
 
 				node_pointer delete_node(node_pointer node, const key_type &k) {
 
@@ -339,24 +238,20 @@ namespace ft {
 
 						if (node->left == NULL && node->right == NULL) {
 							destroy_node(node);
-							//node = NULL;
-							//siz -= 1;
 							return NULL; 
 						}
 						else if (node->left == NULL) {
+
 							node_pointer tmp = node->right; 
+							tmp->dad = node->dad;
 							destroy_node(node);
-							//node = NULL;
-							//siz -= 1;
 							return tmp;
 						}
 						else if (node->right == NULL) {
 
 							node_pointer tmp = node->left;
-							// deallocate node
+							tmp->dad = node->dad;
 							destroy_node(node);
-							//node = NULL;
-							//siz -= 1;
 							return tmp;
 						}
 
@@ -378,12 +273,8 @@ namespace ft {
 						if (node->right)
 							node->right->dad = tmp;
 
-
-
-						//             DEALLOCATE NODE
 						destroy_node(node);
-						//node = NULL;
-						//siz -= 1;
+						siz += 1;
 
 						return tmp;
 
@@ -391,65 +282,70 @@ namespace ft {
 					return node;
 				}
 
+			public:
+
 				void erase (iterator position) {
-//					if (!count(position->first))
-//						return ;
 					root = delete_node(root, position->first);
-//					siz -= 1;
-//					root->dad = sentinel;
-//					sentinel->left = root;
+					sentinel->left = root;
 				}
 
 				size_type erase (const key_type& k) {
 
 					size_type tmp = siz;
-//					if (!count(k)) 
-//						return 0;
-//
-//					std::cout << "before erase sentinel is " << &sentinel << " and root is " << &root << std::endl;
-					
 					root = delete_node(root, k);
-//					root->dad = sentinel;
-//					sentinel->left = root;
-//					siz -= 1;
-//					std::cout << "after erase sentinel is " << &sentinel << " and root is " << &root << std::endl;
+					sentinel->left = root;
 					return tmp - siz;
 
 				}
 
-
 				void erase (iterator first, iterator last) {
-					for (; first != last; ++first) {
-//						if (count(first->first)) {
-							root = delete_node(root, first->first);
-//							root->dad = sentinel;
-//							sentinel->left = root;
-//							siz -= 1;
-//						}
+
+					key_type	first_value;
+
+					while (first != last) {
+
+						first_value = first->first;
+						++first;
+						erase(first_value);
 					}
-				}
-
-				void copy_map(map& x) {
-
-					this->alloc = x.alloc;
-					this->node_alloc = x.node_alloc;
-					this->comp = x.comp;
-					this->root = x.root;
-					this->siz = x.siz;
-					this->sentinel = x.sentinel;
-
 				}
 
 				void swap (map& x) {
 
-					map swp;
+					allocator_type		tmp_alloc;
+					node_allocator		tmp_node_alloc;
+					key_compare			tmp_comp;
+					node_pointer		tmp_root;
+					node_pointer		tmp_sentinel;
+					node_pointer		tmp_sentinel2;
+					size_type			tmp_siz;
+					
+					tmp_alloc = x.alloc;
+					tmp_node_alloc = x.node_alloc;
+					tmp_comp = x.comp;
+					tmp_root = x.root;
+					tmp_siz = x.siz;
+					tmp_sentinel = x.sentinel;
+					tmp_sentinel2 = x.sentinel2;
 
-					swp.copy_map(x);
-					x.copy_map(*this);
-					this->copy_map(swp);
+					x.alloc = this->alloc;
+					x.node_alloc = this->node_alloc;
+					x.comp = this->comp;
+					x.root = this->root;
+					x.siz = this->siz;
+					x.sentinel = this->sentinel;
+					x.sentinel2 = this->sentinel2;
 
-
+					this->alloc = tmp_alloc;
+					this->node_alloc = tmp_node_alloc;
+					this->comp = tmp_comp;
+					this->root = tmp_root;
+					this->siz = tmp_siz;
+					this->sentinel = tmp_sentinel;
+					this->sentinel2 = tmp_sentinel2;
 				}
+
+			private:
 
 				void	destroy_node(node_pointer &node) {
 
@@ -469,21 +365,18 @@ namespace ft {
 					destroy_node(node);
 				}
 
+			public:
+
 				void clear() {
 
 					delete_tree(root);
 					sentinel->left = NULL;
-
-//					std::cout << "after clear root is " << root << siz << std::endl;	
-//					siz = 0;
-
-//					std::cout << "after clear size is " << siz << std::endl;	
-
-
 				}
 
 
 				//		OPERATIONS
+
+			private:
 
 				iterator find_node(const key_type& k, node_pointer node, key_compare cmp) {
 
@@ -511,6 +404,7 @@ namespace ft {
 
 				}
 
+			public:
 
 				iterator find (const key_type& k) {
 
@@ -582,14 +476,6 @@ namespace ft {
 					ret.second = upper_bound(k);
 
 					return ret;
-/*
-					key_compare cmp = key_comp();
-					iterator it = begin();
-
-					for (; it != end() && cmp(it->first, k); ++it) { ; }
-					if ( it != end() && !cmp(k, it->first))
-						return ft::pair<iterator, iterator>(it, ++it);
-					return ft::pair<iterator, iterator>(it, it);*/
 				}
 
 				pair<const_iterator,const_iterator> equal_range (const key_type& k) const {
@@ -600,17 +486,7 @@ namespace ft {
 					ret.second = upper_bound(k);
 
 					return ret;
-/*
-					key_compare cmp = key_comp();
-					const_iterator cit = begin();
-
-					for (; cit != end() && cmp(cit->first, k); ++cit) { ; }
-					if ( cit != end() && !cmp(k, cit->first))
-						return ft::pair<const_iterator, const_iterator>(cit, ++cit);
-					return ft::pair<const_iterator, const_iterator>(cit, cit);*/
 				}
-
-
 
 		};
 
@@ -618,7 +494,7 @@ namespace ft {
 
 	template<typename Key, typename T, typename Compare, typename Alloc>
 		bool operator==(const map<Key, T, Compare, Alloc>& a, const map<Key, T, Compare, Alloc>& b) {
-			return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin());
+			return a.size() == b.size() && ft::equal(a.begin(), a.end(), b.begin());
 		}
 
 	template<typename Key, typename T, typename Compare, typename Alloc>
@@ -640,7 +516,7 @@ namespace ft {
 		bool operator<=(const map<Key, T, Compare, Alloc>& a, const map<Key, T, Compare, Alloc>& b) {
 			return !(a > b);
 		}
-	
+
 	template<typename Key, typename T, typename Compare, typename Alloc>
 		bool operator>=(const map<Key, T, Compare, Alloc>& a, const map<Key, T, Compare, Alloc>& b) {
 			return !(a < b);
